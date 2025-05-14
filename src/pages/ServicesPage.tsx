@@ -1,7 +1,9 @@
 
 import Layout from '../components/Layout';
 import { useEffect } from 'react';
-import { Building, PenTool, Home, FileCheck, Check, Users, Edit, Ruler } from 'lucide-react';
+import { Building, PenTool, Home, FileCheck, Ruler, Hammer, Paintbrush, Wrench, Users, Shield, Truck, LineChart } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const ServicesPage = () => {
   useEffect(() => {
@@ -27,103 +29,111 @@ const ServicesPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const services = [
+  const mainServices = [
     {
-      id: 'design',
-      icon: <PenTool size={36} />,
+      icon: <PenTool size={28} />,
       title: 'التصميم المعماري',
       description: 'نقدم تصاميم معمارية مبتكرة ومستدامة تجمع بين الجمال والوظيفة، مع مراعاة احتياجات العملاء والبيئة المحيطة.',
       details: [
-        'دراسات المواقع والجدوى المعمارية',
-        'مخططات المباني السكنية والتجارية والصناعية',
-        'التصاميم المستدامة والصديقة للبيئة',
-        'الواجهات المعمارية المبتكرة',
-        'تصاميم المشاريع متعددة الاستخدامات'
-      ],
-      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+        'تصميم المباني السكنية والتجارية',
+        'التصميم الحضري وتخطيط المساحات',
+        'الاستدامة والتصميم الأخضر',
+        'النمذجة ثلاثية الأبعاد والمحاكاة البصرية'
+      ]
     },
     {
-      id: 'construction',
-      icon: <Building size={36} />,
+      icon: <Building size={28} />,
       title: 'الإنشاءات والبناء',
       description: 'نتولى تنفيذ مشاريع البناء بكافة أنواعها من الأساسات وحتى التشطيبات النهائية، مع الالتزام بأعلى معايير الجودة.',
       details: [
-        'بناء الفلل والقصور السكنية',
-        'إنشاء المباني التجارية والإدارية',
-        'تشييد المجمعات السكنية والتجارية',
-        'بناء المنشآت الصناعية والمستودعات',
-        'أعمال الترميم وإعادة التأهيل'
-      ],
-      image: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+        'بناء المباني السكنية والفلل',
+        'إنشاء المجمعات التجارية والإدارية',
+        'تشييد المنشآت الصناعية',
+        'البناء بتقنيات حديثة وصديقة للبيئة'
+      ]
     },
     {
-      id: 'interior',
-      icon: <Home size={36} />,
+      icon: <Home size={28} />,
       title: 'التصميم الداخلي',
       description: 'نصمم المساحات الداخلية بأسلوب يعكس شخصية العميل ويلبي احتياجاته العملية، مع التركيز على الراحة والجمالية.',
       details: [
-        'تصميم وتنفيذ الديكورات الداخلية',
-        'اختيار الألوان والخامات والأثاث',
-        'تخطيط المساحات وتوزيع الإضاءة',
-        'التصميم الداخلي للمكاتب والمحلات التجارية',
-        'تنسيق المساحات الداخلية للفنادق والمطاعم'
-      ],
-      image: 'https://images.unsplash.com/photo-1493037645262-9bb224e41c1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+        'تصميم المساحات السكنية والتجارية',
+        'اختيار الألوان والمواد والأثاث',
+        'تصميم الإضاءة والديكور',
+        'تنسيق المساحات وتحسين الوظائف'
+      ]
     },
     {
-      id: 'consultation',
-      icon: <FileCheck size={36} />,
+      icon: <FileCheck size={28} />,
       title: 'الاستشارات الهندسية',
       description: 'نقدم استشارات هندسية متكاملة للمشاريع من دراسات الجدوى وحتى الإشراف الهندسي، بما يضمن نجاح المشروع.',
       details: [
-        'تقييم المشاريع وإعداد دراسات الجدوى',
-        'الإشراف الهندسي على التنفيذ',
+        'دراسات الجدوى والتحليل الفني',
+        'استشارات التصميم والتنفيذ',
         'مراجعة المخططات والتصاميم',
-        'إدارة المشاريع الإنشائية',
-        'تقديم الحلول الهندسية للمشكلات'
-      ],
-      image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+        'الإشراف على المشاريع وإدارتها'
+      ]
     }
   ];
 
   const additionalServices = [
     {
-      icon: <Ruler />,
-      title: 'المساحة وتخطيط المواقع',
-      description: 'خدمات مسح الأراضي وتحديد المواقع وإعداد الخرائط التفصيلية للمشاريع.'
+      icon: <Ruler size={24} />,
+      title: 'إدارة المشاريع',
+      description: 'إدارة احترافية لمشاريع البناء من البداية حتى التسليم، مع ضمان الالتزام بالميزانية والجدول الزمني.',
     },
     {
-      icon: <Edit />,
-      title: 'تصميم المناظر الطبيعية',
-      description: 'تصميم وتنسيق الحدائق والمساحات الخارجية بما يتناسب مع المباني والبيئة المحيطة.'
+      icon: <Hammer size={24} />,
+      title: 'الترميم وإعادة التأهيل',
+      description: 'ترميم المباني القديمة وإعادة تأهيلها مع الحفاظ على طابعها الأصلي وتحسين كفاءتها.',
     },
     {
-      icon: <Users />,
-      title: 'إدارة المرافق',
-      description: 'خدمات متكاملة لإدارة وصيانة المباني والمرافق بعد الانتهاء من التنفيذ.'
+      icon: <Paintbrush size={24} />,
+      title: 'أعمال التشطيبات',
+      description: 'تنفيذ أعمال التشطيبات الداخلية والخارجية بأعلى جودة وباستخدام أفضل الخامات.',
     },
     {
-      icon: <Check />,
-      title: 'ضمان الجودة',
-      description: 'تطبيق معايير صارمة لضمان جودة التنفيذ وفق المواصفات العالمية والمحلية.'
-    }
+      icon: <Wrench size={24} />,
+      title: 'خدمات الصيانة',
+      description: 'برامج صيانة دورية وطارئة للمباني والمنشآت لضمان استمرارية عملها بكفاءة.',
+    },
+    {
+      icon: <Users size={24} />,
+      title: 'التطوير العقاري',
+      description: 'تطوير مشاريع سكنية وتجارية متكاملة من مرحلة التخطيط حتى التسويق والبيع.',
+    },
+    {
+      icon: <Shield size={24} />,
+      title: 'السلامة والجودة',
+      description: 'تطبيق أنظمة السلامة والجودة في مواقع العمل وضمان الالتزام بالمعايير العالمية.',
+    },
+    {
+      icon: <Truck size={24} />,
+      title: 'توريد مواد البناء',
+      description: 'توفير مواد البناء عالية الجودة من مصادر موثوقة وبأسعار تنافسية.',
+    },
+    {
+      icon: <LineChart size={24} />,
+      title: 'دراسات التكلفة',
+      description: 'إعداد دراسات تفصيلية للتكلفة وتحليل البدائل لتوفير أفضل قيمة للعميل.',
+    },
   ];
 
   return (
     <Layout>
-      {/* Page Header */}
+      {/* Hero Section */}
       <div className="relative bg-primary py-24 px-4">
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1466442929976-97f336a657be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-            alt="Services Header"
+            src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            alt="خدماتنا"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
         <div className="container mx-auto relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">خدماتنا</h1>
           <p className="text-white/80 max-w-2xl mx-auto">
-            نقدم مجموعة متكاملة من الخدمات المعمارية والإنشائية لتلبية احتياجات عملائنا
+            نقدم مجموعة متكاملة من الخدمات المعمارية والإنشائية لتلبية احتياجاتكم بأعلى معايير الجودة
           </p>
         </div>
       </div>
@@ -132,44 +142,39 @@ const ServicesPage = () => {
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 reveal">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">خدماتنا الرئيسية</h2>
+            <div className="mb-2 inline-block">
+              <span className="bg-accent/20 text-accent px-4 py-1 rounded-full text-sm font-medium">خدماتنا الرئيسية</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">خدمات متكاملة بمعايير عالمية</h2>
             <p className="text-secondary max-w-2xl mx-auto">
-              نوفر لعملائنا مجموعة متنوعة من الخدمات المعمارية والإنشائية عالية الجودة لتلبية جميع احتياجاتهم
+              نقدم لعملائنا باقة متميزة من الخدمات المتكاملة التي تغطي جميع مراحل المشروع من الفكرة الأولى حتى التسليم النهائي
             </p>
           </div>
-          
-          <div className="space-y-20">
-            {services.map((service, index) => (
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            {mainServices.map((service, index) => (
               <div 
-                key={service.id} 
-                id={service.id}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center reveal ${
-                  index % 2 === 1 ? 'lg:grid-flow-dense' : ''
-                }`}
+                key={index} 
+                className="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-gray-100 reveal"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                  <div className="bg-primary-light/10 p-4 rounded-lg inline-block mb-4 text-primary">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary-light/10 p-4 rounded-lg text-primary">
                     {service.icon}
                   </div>
-                  <h2 className="text-3xl font-bold text-primary mb-4">{service.title}</h2>
-                  <p className="text-secondary mb-6">{service.description}</p>
-                  
-                  <ul className="space-y-3">
-                    {service.details.map((detail, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <Check className="text-accent shrink-0" size={20} />
-                        <span>{detail}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                  <img
-                    src={service.image}
-                    alt={service.title}
-                    className="w-full h-auto rounded-lg shadow-lg"
-                  />
+                  <div>
+                    <h3 className="font-bold text-xl mb-3 text-primary">{service.title}</h3>
+                    <p className="text-secondary mb-4">{service.description}</p>
+                    
+                    <ul className="mt-4 space-y-2">
+                      {service.details.map((detail, detailIndex) => (
+                        <li key={detailIndex} className="flex items-center gap-2">
+                          <span className="w-2 h-2 bg-accent rounded-full"></span>
+                          <span>{detail}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             ))}
@@ -181,13 +186,16 @@ const ServicesPage = () => {
       <section className="section-padding bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 reveal">
+            <div className="mb-2 inline-block">
+              <span className="bg-accent/20 text-accent px-4 py-1 rounded-full text-sm font-medium">خدمات متنوعة</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">خدمات إضافية</h2>
             <p className="text-secondary max-w-2xl mx-auto">
-              نقدم أيضًا مجموعة من الخدمات المتخصصة التي تكمل خدماتنا الرئيسية وتضمن تنفيذ مشروعك بشكل متكامل
+              نقدم مجموعة واسعة من الخدمات الإضافية المتخصصة لتلبية كافة احتياجات مشروعك
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {additionalServices.map((service, index) => (
               <div 
                 key={index} 
@@ -197,7 +205,7 @@ const ServicesPage = () => {
                 <div className="bg-primary-light/10 p-3 rounded-lg inline-block mb-4 text-primary">
                   {service.icon}
                 </div>
-                <h3 className="font-bold text-xl mb-3 text-primary">{service.title}</h3>
+                <h3 className="font-bold text-lg mb-3 text-primary">{service.title}</h3>
                 <p className="text-secondary">{service.description}</p>
               </div>
             ))}
@@ -205,43 +213,68 @@ const ServicesPage = () => {
         </div>
       </section>
 
-      {/* Service Process */}
+      {/* Process Section */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 reveal">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">آلية العمل</h2>
+            <div className="mb-2 inline-block">
+              <span className="bg-accent/20 text-accent px-4 py-1 rounded-full text-sm font-medium">منهجية العمل</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">كيف نعمل</h2>
             <p className="text-secondary max-w-2xl mx-auto">
-              نتبع منهجية عمل واضحة ومنظمة لضمان تنفيذ المشاريع بكفاءة وجودة عالية
+              نتبع منهجية عمل احترافية ومنظمة لضمان تنفيذ المشاريع بأعلى جودة وفي الوقت المحدد
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="relative max-w-4xl mx-auto reveal">
+            {/* Process Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-primary/20 transform -translate-x-1/2 hidden md:block"></div>
+            
+            {/* Process Steps */}
             {[
               {
-                step: '01',
-                title: 'الاستشارة والتخطيط',
-                description: 'نبدأ بفهم احتياجات العميل وتوقعاته، ثم نقوم بدراسة المشروع ووضع التصورات الأولية.'
+                title: "التخطيط والتصميم",
+                description: "نبدأ بجلسات استشارية لفهم احتياجاتك ورؤيتك، ثم نقوم بإعداد المخططات والتصاميم الأولية."
               },
               {
-                step: '02',
-                title: 'التصميم والتطوير',
-                description: 'نعمل على إعداد التصاميم المعمارية والإنشائية المفصلة، مع مراعاة جميع المتطلبات الفنية والجمالية.'
+                title: "تطوير التصميم",
+                description: "بعد موافقتك على التصميم الأولي، نقوم بتطويره وإضافة التفاصيل الدقيقة وإعداد المخططات التنفيذية."
               },
               {
-                step: '03',
-                title: 'التنفيذ والإشراف',
-                description: 'نبدأ في تنفيذ المشروع وفق الخطة الموضوعة، مع الإشراف المستمر لضمان الالتزام بالجودة والمواعيد.'
+                title: "الموافقات والتراخيص",
+                description: "نتولى استخراج جميع التراخيص والموافقات اللازمة من الجهات المختصة لبدء العمل."
+              },
+              {
+                title: "التنفيذ والإنشاء",
+                description: "نبدأ في تنفيذ المشروع وفقًا للخطة المعتمدة، مع مراقبة مستمرة للجودة والالتزام بالجدول الزمني."
+              },
+              {
+                title: "التشطيبات والتجهيز",
+                description: "بعد الانتهاء من الهيكل الإنشائي، نبدأ في أعمال التشطيبات الداخلية والخارجية وفقًا للمواصفات المتفق عليها."
+              },
+              {
+                title: "التسليم والضمان",
+                description: "نقوم بالتسليم النهائي للمشروع بعد التأكد من مطابقته للمواصفات، مع تقديم الضمانات اللازمة."
               }
-            ].map((phase, index) => (
+            ].map((step, index) => (
               <div 
-                key={index} 
-                className="reveal"
-                style={{ animationDelay: `${index * 0.2}s` }}
+                key={index}
+                className={`flex flex-col md:flex-row items-center gap-6 mb-12 md:mb-24 reveal ${
+                  index % 2 === 1 ? 'md:flex-row-reverse' : ''
+                }`}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 h-full">
-                  <div className="text-5xl font-bold text-accent/20 mb-4">{phase.step}</div>
-                  <h3 className="font-bold text-xl mb-3 text-primary">{phase.title}</h3>
-                  <p className="text-secondary">{phase.description}</p>
+                {/* Number */}
+                <div className="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold z-10">
+                  {index + 1}
+                </div>
+                
+                {/* Content */}
+                <div className={`bg-white p-6 rounded-lg shadow-md border border-gray-100 md:w-[calc(50%-1.5rem)] ${
+                  index % 2 === 0 ? 'md:text-right' : 'md:text-left'
+                }`}>
+                  <h3 className="font-bold text-xl mb-2 text-primary">{step.title}</h3>
+                  <p className="text-secondary">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -250,18 +283,20 @@ const ServicesPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-primary text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 reveal">هل أنت جاهز لبدء مشروعك؟</h2>
-          <p className="text-white/80 max-w-2xl mx-auto mb-8 reveal">
-            تواصل معنا اليوم لمناقشة مشروعك واحتياجاتك، ودع فريقنا المتخصص يساعدك في تحويل أفكارك إلى واقع.
+      <section className="bg-primary text-white py-16">
+        <div className="container mx-auto px-4 text-center reveal">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">هل أنت مستعد لبدء مشروعك؟</h2>
+          <p className="text-white/80 max-w-2xl mx-auto mb-8">
+            تواصل معنا اليوم للحصول على استشارة مجانية واكتشف كيف يمكننا مساعدتك في تحقيق رؤيتك
           </p>
-          <a 
-            href="/contact" 
-            className="bg-white text-primary hover:bg-accent hover:text-white transition-colors px-8 py-3 rounded-md font-bold inline-block reveal"
-          >
-            تواصل معنا
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild className="bg-accent hover:bg-accent/90 text-primary font-bold py-3 px-8 rounded-md text-lg">
+              <Link to="/contact">تواصل معنا</Link>
+            </Button>
+            <Button asChild className="bg-transparent hover:bg-white/10 border-2 border-white text-white font-bold py-3 px-8 rounded-md text-lg">
+              <Link to="/maintenance-request">طلب خدمة صيانة</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </Layout>

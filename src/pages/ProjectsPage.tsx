@@ -1,104 +1,133 @@
 
 import Layout from '../components/Layout';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from "@/components/ui/button";
+
+const projects = [
+  {
+    id: 1,
+    title: 'برج السلام التجاري',
+    category: 'مباني تجارية',
+    location: 'الرياض، المملكة العربية السعودية',
+    year: '2023',
+    description: 'برج مكتبي حديث يتألف من 25 طابقاً، صمم وفقاً لأحدث معايير الاستدامة والكفاءة الطاقية.',
+    image: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1486325212027-8081e485255e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1481253127861-534498168948?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1492455417212-e162ed4446e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 2,
+    title: 'مجمع الواحة السكني',
+    category: 'مباني سكنية',
+    location: 'جدة، المملكة العربية السعودية',
+    year: '2022',
+    description: 'مجمع سكني فاخر يضم 120 وحدة سكنية متنوعة، مع خدمات ومرافق متكاملة تلبي احتياجات السكان.',
+    image: 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1507149833265-60c372daea22?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 3,
+    title: 'مستشفى الرحمة',
+    category: 'مباني صحية',
+    location: 'الدمام، المملكة العربية السعودية',
+    year: '2022',
+    description: 'مستشفى حديث يضم 250 سريراً، مجهز بأحدث التقنيات الطبية والتصميم الذي يراعي راحة المرضى والكادر الطبي.',
+    image: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1512678080530-7760d81faba6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 4,
+    title: 'مول الأندلس',
+    category: 'مباني تجارية',
+    location: 'الرياض، المملكة العربية السعودية',
+    year: '2021',
+    description: 'مركز تسوق عصري يمتد على مساحة 85,000 متر مربع، يضم أكثر من 200 متجر ومطعم ومرافق ترفيهية متنوعة.',
+    image: 'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1604014237800-1c9102c219da?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 5,
+    title: 'فندق القمة',
+    category: 'مباني سياحية',
+    location: 'مكة المكرمة، المملكة العربية السعودية',
+    year: '2021',
+    description: 'فندق فخم يضم 350 غرفة وجناحاً، مع مرافق متعددة ومطاعم عالمية وقاعات مؤتمرات مجهزة بأحدث التقنيات.',
+    image: 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1551632436-cbf726cbfb8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 6,
+    title: 'مدرسة المستقبل الدولية',
+    category: 'مباني تعليمية',
+    location: 'جدة، المملكة العربية السعودية',
+    year: '2020',
+    description: 'مجمع تعليمي متكامل يضم مراحل تعليمية مختلفة، مع مرافق رياضية وترفيهية ومختبرات علمية متطورة.',
+    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 7,
+    title: 'مصنع النور',
+    category: 'مباني صناعية',
+    location: 'الدمام، المملكة العربية السعودية',
+    year: '2020',
+    description: 'منشأة صناعية حديثة تمتد على مساحة 12,000 متر مربع، مصممة وفق أحدث معايير السلامة والكفاءة الإنتاجية.',
+    image: 'https://images.unsplash.com/photo-1518866958548-51a748102f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1518866958548-51a748102f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1565861748877-7194b889b660?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1516937941344-00b4e0337589?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+  {
+    id: 8,
+    title: 'حديقة الأمير محمد',
+    category: 'مساحات عامة',
+    location: 'الرياض، المملكة العربية السعودية',
+    year: '2019',
+    description: 'حديقة عامة تمتد على مساحة 25 هكتاراً، تضم مسطحات خضراء ومناطق ترفيهية ومسارات للمشي وبحيرة اصطناعية.',
+    image: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1476231682828-37e571bc172f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1497035111255-8294324af5bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+      'https://images.unsplash.com/photo-1527561010307-3d8a5d024b4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    ],
+  },
+];
+
+const categories = ['الكل', 'مباني تجارية', 'مباني سكنية', 'مباني صحية', 'مباني سياحية', 'مباني تعليمية', 'مباني صناعية', 'مساحات عامة'];
 
 const ProjectsPage = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
-
-  const projectCategories = [
-    { id: 'all', name: 'الكل' },
-    { id: 'residential', name: 'سكني' },
-    { id: 'commercial', name: 'تجاري' },
-    { id: 'industrial', name: 'صناعي' },
-  ];
-
-  const projects = [
-    {
-      id: 1,
-      title: 'فيلا سكنية فاخرة',
-      category: 'residential',
-      location: 'الرياض، السعودية',
-      description: 'تصميم وبناء فيلا سكنية فاخرة على مساحة 750 متر مربع، تجمع بين الطراز المعماري الحديث والتقليدي.',
-      image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 2,
-      title: 'مجمع تجاري متكامل',
-      category: 'commercial',
-      location: 'جدة، السعودية',
-      description: 'تصميم وتنفيذ مجمع تجاري يضم محلات ومكاتب على مساحة 5000 متر مربع، مع تصميم معاصر وبنية تحتية متطورة.',
-      image: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 3,
-      title: 'مصنع حديث',
-      category: 'industrial',
-      location: 'الدمام، السعودية',
-      description: 'إنشاء مصنع متطور على مساحة 8000 متر مربع، مع مراعاة أعلى معايير السلامة والاستدامة.',
-      image: 'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 4,
-      title: 'مبنى إداري متميز',
-      category: 'commercial',
-      location: 'الرياض، السعودية',
-      description: 'تصميم وبناء مقر إداري لشركة رائدة، يتميز بواجهة زجاجية حديثة وتصميم داخلي مريح وعملي.',
-      image: 'https://images.unsplash.com/photo-1460574283810-2aab119d8511?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 5,
-      title: 'فيلا مودرن',
-      category: 'residential',
-      location: 'الطائف، السعودية',
-      description: 'تصميم وتنفيذ فيلا سكنية بطراز معماري حديث، مع التركيز على استغلال الإضاءة الطبيعية والمساحات المفتوحة.',
-      image: 'https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 6,
-      title: 'مستودع صناعي',
-      category: 'industrial',
-      location: 'ينبع، السعودية',
-      description: 'إنشاء مستودع صناعي متطور بمساحة 12000 متر مربع، مع أنظمة تخزين حديثة وتهوية متطورة.',
-      image: 'https://images.unsplash.com/photo-1486672578061-9ea86bfdd566?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 7,
-      title: 'مجمع سكني',
-      category: 'residential',
-      location: 'المدينة المنورة، السعودية',
-      description: 'تصميم وبناء مجمع سكني يضم 12 وحدة سكنية فاخرة، مع مرافق مشتركة ومساحات خضراء.',
-      image: 'https://images.unsplash.com/photo-1459767129954-1b1c1f9b9ace?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 8,
-      title: 'مول تجاري',
-      category: 'commercial',
-      location: 'أبها، السعودية',
-      description: 'تصميم وتنفيذ مول تجاري على مساحة 15000 متر مربع، يضم محلات ومطاعم ومنطقة ترفيهية.',
-      image: 'https://images.unsplash.com/photo-1524230572899-a752b3835840?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-    {
-      id: 9,
-      title: 'مصنع للصناعات الغذائية',
-      category: 'industrial',
-      location: 'القصيم، السعودية',
-      description: 'إنشاء مصنع متخصص في الصناعات الغذائية، مع الالتزام بأعلى معايير السلامة الغذائية.',
-      image: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    },
-  ];
+  const [selectedProject, setSelectedProject] = useState<null | typeof projects[0]>(null);
+  const [filter, setFilter] = useState('الكل');
+  const [filteredProjects, setFilteredProjects] = useState(projects);
 
   useEffect(() => {
     document.title = 'مشاريعنا | شركة العزب للإنشاءات';
-
-    if (activeCategory === 'all') {
-      setFilteredProjects(projects);
-    } else {
-      setFilteredProjects(projects.filter((project) => project.category === activeCategory));
-    }
-  }, [activeCategory]);
-
-  useEffect(() => {
+    
     const handleScroll = () => {
       const reveals = document.querySelectorAll('.reveal');
       
@@ -119,21 +148,39 @@ const ProjectsPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (filter === 'الكل') {
+      setFilteredProjects(projects);
+    } else {
+      setFilteredProjects(projects.filter(project => project.category === filter));
+    }
+  }, [filter]);
+
+  const openProjectDetails = (project: typeof projects[0]) => {
+    setSelectedProject(project);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeProjectDetails = () => {
+    setSelectedProject(null);
+    document.body.style.overflow = 'auto';
+  };
+
   return (
     <Layout>
-      {/* Page Header */}
+      {/* Hero Section */}
       <div className="relative bg-primary py-24 px-4">
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-            alt="Projects Header"
+            src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            alt="مشاريعنا"
             className="w-full h-full object-cover opacity-20"
           />
         </div>
         <div className="container mx-auto relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">مشاريعنا</h1>
           <p className="text-white/80 max-w-2xl mx-auto">
-            استعرض مجموعة من المشاريع المتميزة التي قمنا بتنفيذها في مختلف المجالات
+            نفخر بمجموعة المشاريع المتميزة التي قمنا بتنفيذها، والتي تعكس التزامنا بالجودة والابتكار
           </p>
         </div>
       </div>
@@ -141,105 +188,143 @@ const ProjectsPage = () => {
       {/* Projects Section */}
       <section className="section-padding">
         <div className="container mx-auto px-4">
-          <div className="mb-12 reveal">
-            <p className="text-secondary max-w-3xl">
-              على مدار أكثر من 15 عامًا، قمنا بتنفيذ العديد من المشاريع المتنوعة في مجالات الإنشاءات والتصميم المعماري، بدءًا من الفلل السكنية الفاخرة وصولًا إلى المجمعات التجارية والمنشآت الصناعية. فيما يلي مجموعة مختارة من مشاريعنا.
-            </p>
-          </div>
-
-          {/* Filter Buttons */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8 reveal">
-            {projectCategories.map((category) => (
-              <button
-                key={category.id}
-                className={`px-4 py-2 rounded-full transition-all ${
-                  activeCategory === category.id
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          {/* Categories Filter */}
+          <div className="mb-12 flex flex-wrap justify-center gap-3 reveal">
+            {categories.map((category, index) => (
+              <Button 
+                key={index}
+                onClick={() => setFilter(category)}
+                className={`rounded-full px-6 ${
+                  filter === category 
+                    ? 'bg-primary text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
-                onClick={() => setActiveCategory(category.id)}
               >
-                {category.name}
-              </button>
+                {category}
+              </Button>
             ))}
           </div>
 
           {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project, index) => (
               <div 
-                key={project.id}
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all reveal"
+                key={project.id} 
+                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer reveal"
                 style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => openProjectDetails(project)}
               >
-                <div className="relative overflow-hidden group h-64">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                <div className="aspect-w-16 aspect-h-9">
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-primary bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <a 
-                      href={`/projects/${project.id}`} 
-                      className="bg-white text-primary font-medium py-2 px-4 rounded-full transform -translate-y-10 group-hover:translate-y-0 transition-all"
-                    >
-                      عرض التفاصيل
-                    </a>
-                  </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-primary mb-2">{project.title}</h3>
-                  <p className="text-sm text-secondary mb-3">{project.location}</p>
-                  <p className="text-secondary line-clamp-3">{project.description}</p>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-bold text-xl text-primary">{project.title}</h3>
+                    <span className="bg-accent/20 text-accent px-3 py-1 rounded-full text-xs font-medium">
+                      {project.category}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-500 mb-3">
+                    <span>{project.location}</span>
+                    <span>{project.year}</span>
+                  </div>
+                  <p className="text-secondary line-clamp-2">{project.description}</p>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Empty State */}
           {filteredProjects.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-secondary text-lg">لا توجد مشاريع في هذه الفئة حاليًا.</p>
+              <h3 className="text-xl font-medium text-gray-600 mb-2">لا توجد مشاريع في هذه الفئة حالياً</h3>
+              <p className="text-gray-500">يرجى اختيار فئة أخرى لعرض المشاريع المتاحة</p>
             </div>
           )}
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-primary text-white">
+      <section className="section-padding bg-primary text-white">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center reveal">
             {[
-              { value: '150+', label: 'مشروع منجز' },
-              { value: '95%', label: 'عملاء راضون' },
-              { value: '15+', label: 'سنوات من الخبرة' },
-              { value: '50+', label: 'خبير متخصص' },
+              { number: '300+', label: 'مشروع منجز' },
+              { number: '15+', label: 'سنوات خبرة' },
+              { number: '50+', label: 'شريك نجاح' },
+              { number: '98%', label: 'عملاء راضون' },
             ].map((stat, index) => (
-              <div key={index} className="text-center reveal" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="text-5xl font-bold mb-2 text-accent">{stat.value}</div>
-                <div className="text-lg text-white/80">{stat.label}</div>
+              <div key={index} className="p-6">
+                <h3 className="text-4xl font-bold mb-2 text-accent">{stat.number}</h3>
+                <p className="text-white/80">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="section-padding bg-gray-50">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto reveal">
-            <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">هل لديك مشروع في المستقبل؟</h2>
-            <p className="text-secondary mb-8">
-              سواء كنت تخطط لبناء منزل أحلامك، أو مشروع تجاري طموح، أو منشأة صناعية متطورة، فنحن هنا للمساعدة. تواصل معنا اليوم لمناقشة أفكارك والحصول على استشارة مجانية.
-            </p>
-            <a 
-              href="/contact" 
-              className="bg-primary hover:bg-primary-light text-white transition-colors px-8 py-3 rounded-md font-bold inline-block"
-            >
-              تواصل معنا
-            </a>
+      {/* Project Details Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+          <div className="max-w-4xl w-full bg-white rounded-lg max-h-[90vh] overflow-y-auto">
+            {/* Gallery */}
+            <div className="relative h-80">
+              {selectedProject.gallery.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`${selectedProject.title} - صورة ${index + 1}`}
+                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+                  style={{ opacity: index === 0 ? 1 : 0 }}
+                />
+              ))}
+              <Button 
+                className="absolute top-4 left-4 bg-white/80 text-primary hover:bg-white rounded-full w-10 h-10 p-0"
+                onClick={closeProjectDetails}
+              >
+                &times;
+              </Button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-bold text-primary">{selectedProject.title}</h2>
+                <span className="bg-accent/20 text-accent px-3 py-1 rounded-full text-sm font-medium">
+                  {selectedProject.category}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                <div>
+                  <p className="text-gray-500 mb-1">الموقع</p>
+                  <p className="font-medium">{selectedProject.location}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 mb-1">سنة الإنجاز</p>
+                  <p className="font-medium">{selectedProject.year}</p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-2">وصف المشروع</h3>
+                <p className="text-secondary">{selectedProject.description}</p>
+              </div>
+              
+              <Button 
+                className="w-full btn-primary"
+                onClick={closeProjectDetails}
+              >
+                إغلاق
+              </Button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
     </Layout>
   );
 };

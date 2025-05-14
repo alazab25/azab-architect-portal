@@ -58,7 +58,9 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden md:block">
-          <Button className="btn-primary">اتصل بنا</Button>
+          <Button asChild className="btn-primary">
+            <Link to="/contact">اتصل بنا</Link>
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -90,7 +92,9 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Button className="btn-primary mt-4 w-full">اتصل بنا</Button>
+              <Button asChild className="btn-primary mt-4 w-full">
+                <Link to="/contact" onClick={() => setIsOpen(false)}>اتصل بنا</Link>
+              </Button>
             </nav>
           </div>
         </div>

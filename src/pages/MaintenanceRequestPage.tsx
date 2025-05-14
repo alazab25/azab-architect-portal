@@ -1,557 +1,546 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/Layout';
 
-type MaintenanceRequestFormData = {
-  branch: string;
-  serviceType: string;
-  title: string;
-  description: string;
-  priority: string;
-  dueDate: string;
-  estimatedCost?: string;
-  attachments?: FileList;
-};
+import { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { toast } from '@/components/ui/use-toast';
+import { Building, UserCheck, CreditCard, CheckCircle, Loader2 } from 'lucide-react';
+
+type MaintenanceStep = 'information' | 'service' | 'payment' | 'confirmation';
 
 const MaintenanceRequestPage = () => {
-  const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const [loading, setLoading] = useState(false);
-  const [attachments, setAttachments] = useState<File[]>([]);
-  
-  const form = useForm<MaintenanceRequestFormData>({
-    defaultValues: {
-      branch: '',
-      serviceType: '',
-      title: '',
-      description: '',
-      priority: 'متوسط',
-      dueDate: new Date().toISOString().split('T')[0],
-      estimatedCost: '',
-    }
+  const [currentStep, setCurrentStep] = useState<MaintenanceStep>('information');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    serviceType: '',
+    urgency: '',
+    description: '',
+    preferredDate: '',
+    preferredTime: '',
+    paymentMethod: 'credit',
   });
+  
+  useEffect(() => {
+    document.title = 'طلب خدمة صيانة | شركة العزب للإنشاءات';
+    
+    const handleScroll = () => {
+      const reveals = document.querySelectorAll('.reveal');
+      
+      reveals.forEach((element) => {
+        const windowHeight = window.innerHeight;
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < windowHeight - elementVisible) {
+          element.classList.add('active');
+        }
+      });
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateStep = (step: MaintenanceStep): boolean => {
+    switch(step) {
+      case 'information':
+        if (!formData.name || !formData.phone || !formData.email || !formData.address) {
+          toast({
+            title: "خطأ في البيانات",
+            description: "يرجى ملء جميع الحقول المطلوبة",
+            duration: 3000,
+          });
+          return false;
+        }
+        return true;
+      case 'service':
+        if (!formData.serviceType || !formData.urgency || !formData.description) {
+          toast({
+            title: "خطأ في البيانات",
+            description: "يرجى ملء جميع الحقول المطلوبة",
+            duration: 3000,
+          });
+          return false;
+        }
+        return true;
+      case 'payment':
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  const goToNextStep = () => {
+    if (!validateStep(currentStep)) return;
+
+    switch(currentStep) {
+      case 'information':
+        setCurrentStep('service');
+        break;
+      case 'service':
+        setCurrentStep('payment');
+        break;
+      case 'payment':
+        handleSubmit();
+        break;
+    }
+  };
+
+  const goToPreviousStep = () => {
+    switch(currentStep) {
+      case 'service':
+        setCurrentStep('information');
+        break;
+      case 'payment':
+        setCurrentStep('service');
+        break;
+      case 'confirmation':
+        resetForm();
+        break;
+    }
+  };
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setCurrentStep('confirmation');
+      
+      toast({
+        title: "تم إرسال طلبك بنجاح",
+        description: "سنقوم بالتواصل معك قريباً لتأكيد موعد الزيارة",
+        duration: 5000,
+      });
+    }, 1500);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
+      address: '',
+      serviceType: '',
+      urgency: '',
+      description: '',
+      preferredDate: '',
+      preferredTime: '',
+      paymentMethod: 'credit',
+    });
+    setCurrentStep('information');
+  };
 
   const steps = [
-    { id: 1, name: 'المعلومات الأساسية' },
-    { id: 2, name: 'تفاصيل الطلب' },
-    { id: 3, name: 'المرفقات' },
-    { id: 4, name: 'المراجعة' },
-    { id: 5, name: 'الإرسال' },
+    { id: 'information', title: 'المعلومات الشخصية', icon: <UserCheck /> },
+    { id: 'service', title: 'تفاصيل الخدمة', icon: <Building /> },
+    { id: 'payment', title: 'الدفع', icon: <CreditCard /> },
+    { id: 'confirmation', title: 'التأكيد', icon: <CheckCircle /> },
   ];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      setAttachments([...attachments, ...newFiles]);
-    }
-  };
+  const serviceTypes = [
+    'صيانة الكهرباء',
+    'صيانة السباكة',
+    'صيانة التكييف',
+    'أعمال البناء',
+    'صيانة الأرضيات',
+    'صيانة الأسقف',
+    'صيانة الواجهات',
+    'أخرى'
+  ];
 
-  const removeFile = (index: number) => {
-    const newAttachments = [...attachments];
-    newAttachments.splice(index, 1);
-    setAttachments(newAttachments);
-  };
-
-  const onSubmit = async (data: MaintenanceRequestFormData) => {
-    setLoading(true);
-    try {
-      // First create the maintenance request in the database
-      // Using type assertion to bypass TypeScript's type checking
-      const { data: requestData, error: requestError } = await (supabase as any)
-        .from('maintenance_requests')
-        .insert([
-          {
-            title: data.title,
-            description: data.description,
-            service_type: data.serviceType,
-            branch_id: data.branch,
-            priority: data.priority,
-            due_date: data.dueDate,
-            estimated_cost: data.estimatedCost || null,
-            status: 'pending',
-          }
-        ])
-        .select();
-
-      if (requestError) throw requestError;
-
-      // Upload attachments if any
-      if (attachments.length > 0 && requestData && requestData.length > 0) {
-        const requestId = requestData[0].id;
-
-        for (const file of attachments) {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${requestId}/${Math.random().toString(36).substring(2)}.${fileExt}`;
-          const filePath = `maintenance-requests/${fileName}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from('attachments')
-            .upload(filePath, file);
-
-          if (uploadError) throw uploadError;
-
-          // Add the attachment to the database
-          // Using type assertion to bypass TypeScript's type checking
-          const { error: attachmentError } = await (supabase as any)
-            .from('attachments')
-            .insert([
-              {
-                maintenance_request_id: requestId,
-                file_path: filePath,
-                file_name: file.name,
-                file_size: file.size,
-                file_type: file.type,
-              }
-            ]);
-
-          if (attachmentError) throw attachmentError;
-        }
-      }
-
-      toast.success("تم إرسال طلب الصيانة بنجاح");
-      navigate('/maintenance-requests');
-    } catch (error) {
-      console.error("Error submitting maintenance request:", error);
-      toast.error("حدث خطأ أثناء إرسال الطلب");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, steps.length));
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
+  const urgencyLevels = [
+    'عاجل (خلال 24 ساعة)',
+    'قريب (خلال 3 أيام)',
+    'عادي (خلال أسبوع)',
+    'مخطط (تحديد موعد)'
+  ];
 
   return (
     <Layout>
-      <div className="container max-w-4xl mx-auto py-8 px-4" dir="rtl">
-        <h1 className="text-3xl font-bold text-center mb-2">نظام طلبات الصيانة</h1>
-        <p className="text-gray-600 text-center mb-8">أدخل بيانات طلب الصي��نة الخاص بك بالخطوات</p>
-
-        {/* Step Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between">
-            {steps.map((step) => (
-              <div key={step.id} className="text-center flex flex-col items-center">
-                <div 
-                  className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 
-                    ${currentStep === step.id ? 'bg-primary text-white' : 
-                      currentStep > step.id ? 'bg-primary/70 text-white' : 'bg-gray-200 text-gray-700'}`}
-                >
-                  {step.id}
-                </div>
-                <span className="text-sm">{step.name}</span>
-              </div>
-            ))}
-          </div>
-          <div className="relative mt-2">
-            <div className="absolute top-0 h-1 bg-gray-200 w-full"></div>
-            <div 
-              className="absolute top-0 h-1 bg-primary transition-all duration-300" 
-              style={{ width: `${(currentStep - 1) / (steps.length - 1) * 100}%` }}
-            ></div>
-          </div>
+      {/* Hero Section */}
+      <div className="relative bg-primary py-24 px-4">
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+            alt="طلب صيانة"
+            className="w-full h-full object-cover opacity-20"
+          />
         </div>
+        <div className="container mx-auto relative z-10 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">طلب خدمة صيانة</h1>
+          <p className="text-white/80 max-w-2xl mx-auto">
+            نقدم خدمات صيانة احترافية وسريعة لمختلف المنشآت السكنية والتجارية والصناعية
+          </p>
+        </div>
+      </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Step 1: Basic Information */}
-            {currentStep === 1 && (
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-fade-in">
-                <h2 className="text-xl font-semibold mb-6 text-primary border-r-4 border-accent pr-3">المعلومات الأساسية</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="branch"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-right block">اختر الفرع <span className="text-red-500">*</span></FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          required
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="أجوا مول" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">أجوا مول</SelectItem>
-                            <SelectItem value="2">سيتي ستارز</SelectItem>
-                            <SelectItem value="3">مول مصر</SelectItem>
-                            <SelectItem value="4">العرب مول</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="serviceType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-right block">نوع الخدمة <span className="text-red-500">*</span></FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          required
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="تركيبات" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="تركيبات">تركيبات</SelectItem>
-                            <SelectItem value="كهرباء">كهرباء</SelectItem>
-                            <SelectItem value="سباكة">سباكة</SelectItem>
-                            <SelectItem value="تكييف">تكييف</SelectItem>
-                            <SelectItem value="ديكور">ديكور</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem className="mt-6">
-                      <FormLabel className="text-right block">عنوان طلب الصيانة <span className="text-red-500">*</span></FormLabel>
-                      <FormControl>
-                        <Input placeholder="تركيب لوحات اعلانية فرع أجوزا" {...field} required />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Step 2: Request Details */}
-            {currentStep === 2 && (
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-fade-in">
-                <h2 className="text-xl font-semibold mb-6 text-primary border-r-4 border-accent pr-3">تفاصيل الطلب</h2>
-                
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-right block">وصف المشكلة <span className="text-red-500">*</span></FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="توريد وتركيب لوحات اعلانيه اعلي وحدات العرض عدد 30 (كوشي/6تاتش/8هوندرجرد/4سكتش/3تينش/4موشنار)" 
-                          className="h-32 resize-none" 
-                          {...field} 
-                          required
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                  <FormField
-                    control={form.control}
-                    name="priority"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-right block">الأولوية <span className="text-red-500">*</span></FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="متوسطة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="عاجل">عاجل</SelectItem>
-                            <SelectItem value="مرتفع">مرتفع</SelectItem>
-                            <SelectItem value="متوسط">متوسط</SelectItem>
-                            <SelectItem value="منخفض">منخفض</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="dueDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-right block">التاريخ المطلوب <span className="text-red-500">*</span></FormLabel>
-                        <FormControl>
-                          <div className="flex">
-                            <Input type="date" {...field} required />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="estimatedCost"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-right block">التكلفة المتوقعة (اختياري)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="15000" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Attachments */}
-            {currentStep === 3 && (
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-fade-in">
-                <h2 className="text-xl font-semibold mb-6 text-primary border-r-4 border-accent pr-3">المرفقات</h2>
-                
-                <p className="text-gray-600 mb-4 text-center">إضافة صور أو ملفات</p>
-                
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors mb-6">
-                  <div className="flex flex-col items-center justify-center">
-                    <svg className="w-12 h-12 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <p className="mb-1">اسحب الملفات هنا أو انقر للاختيار</p>
-                    <p className="text-xs text-gray-500">يمكنك رفع ملفات بصيغة JPG, PNG, PDF (الحد الأقصى 5 ملفات)</p>
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      onChange={handleFileChange}
-                      disabled={attachments.length >= 5}
-                    />
+      {/* Steps Indicator */}
+      <div className="bg-white py-6 border-b">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div className={`flex flex-col items-center ${currentStep === step.id ? 'text-primary' : 'text-gray-400'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${currentStep === step.id ? 'bg-primary text-white' : 'bg-gray-200'}`}>
+                    {step.icon}
                   </div>
+                  <span className="text-sm hidden md:block">{step.title}</span>
                 </div>
-                
-                {attachments.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 mb-2">الملفات المرفقة ({attachments.length}/5)</p>
-                    {attachments.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 flex items-center justify-center">
-                            {file.type.includes('image') ? (
-                              <AspectRatio ratio={1/1} className="bg-gray-100 rounded overflow-hidden">
-                                <img 
-                                  src={URL.createObjectURL(file)} 
-                                  alt={file.name} 
-                                  className="object-cover h-10 w-10"
-                                />
-                              </AspectRatio>
-                            ) : (
-                              <div className="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                          </div>
-                          <div className="ml-3 rtl:mr-3 rtl:ml-0">
-                            <p className="text-sm font-medium text-gray-900 truncate max-w-[150px] sm:max-w-[250px]">{file.name}</p>
-                            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} كيلوبايت</p>
-                          </div>
-                        </div>
-                        <button 
-                          type="button"
-                          onClick={() => removeFile(index)} 
-                          className="text-red-500 hover:bg-red-50 p-1 rounded-full"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
+                {index < steps.length - 1 && (
+                  <div className="w-12 md:w-20 h-[2px] mx-1 bg-gray-200">
+                    <div 
+                      className="h-full bg-primary transition-all duration-300" 
+                      style={{ 
+                        width: steps.findIndex(s => s.id === currentStep) > index ? '100%' : '0%' 
+                      }}
+                    ></div>
                   </div>
                 )}
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <section className="section-padding bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-8 reveal">
+            {currentStep === 'information' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-primary mb-6">المعلومات الشخصية</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="name">الاسم الكامل</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="أدخل اسمك الكامل"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">رقم الهاتف</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="05xxxxxxxx"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="email">البريد الإلكتروني</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="example@domain.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="address">العنوان</Label>
+                  <Textarea
+                    id="address"
+                    name="address"
+                    placeholder="أدخل عنوانك بالتفصيل"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
             )}
 
-            {/* Step 4: Review */}
-            {currentStep === 4 && (
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-fade-in">
-                <h2 className="text-xl font-semibold mb-6 text-primary border-r-4 border-accent pr-3">مراجعة البيانات</h2>
+            {currentStep === 'service' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-primary mb-6">تفاصيل الخدمة</h2>
                 
-                <div className="space-y-6">
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <h3 className="font-semibold text-lg mb-2 border-r-2 border-accent pr-2">المعلومات الأساسية</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-gray-600">الفرع:</span>
-                        <p className="font-medium">أجوا مول</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">نوع الخدمة:</span>
-                        <p className="font-medium">تركيبات</p>
-                      </div>
-                      <div className="col-span-2">
-                        <span className="text-gray-600">العنوان:</span>
-                        <p className="font-medium">{form.getValues().title || "تركيب لوحات اعلانية فرع أجوزا"}</p>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <Label htmlFor="serviceType">نوع الخدمة</Label>
+                  <Select
+                    value={formData.serviceType}
+                    onValueChange={(value) => handleSelectChange('serviceType', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر نوع الخدمة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {serviceTypes.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <h3 className="font-semibold text-lg mb-2 border-r-2 border-accent pr-2">تفاصيل الطلب</h3>
-                    <div>
-                      <span className="text-gray-600">الوصف:</span>
-                      <p className="font-medium mt-1">{form.getValues().description || "توريد وتركيب لوحات اعلانيه اعلي وحدات العرض عدد 30 (كوشي/6تاتش/8هوندرجرد/4سكتش/3تينش/4موشنار)"}</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4 mt-3">
-                      <div>
-                        <span className="text-gray-600">الأولوية:</span>
-                        <p className="font-medium">متوسطة</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">التاريخ المطلوب:</span>
-                        <p className="font-medium">12 مايو 2025</p>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">التكلفة المتوقعة:</span>
-                        <p className="font-medium">15000 ريال</p>
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <Label htmlFor="urgency">مستوى الأولوية</Label>
+                  <Select
+                    value={formData.urgency}
+                    onValueChange={(value) => handleSelectChange('urgency', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="حدد مستوى الأولوية" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {urgencyLevels.map((level) => (
+                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <h3 className="font-semibold text-lg mb-2 border-r-2 border-accent pr-2">المرفقات</h3>
-                    {attachments.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                        {attachments.map((file, index) => (
-                          <div key={index} className="text-center">
-                            {file.type.includes('image') ? (
-                              <div className="bg-gray-100 rounded overflow-hidden mb-1 h-20">
-                                <img 
-                                  src={URL.createObjectURL(file)} 
-                                  alt={file.name} 
-                                  className="object-cover h-full w-full"
-                                />
-                              </div>
-                            ) : (
-                              <div className="bg-primary/10 h-20 rounded flex items-center justify-center mb-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                            <p className="text-xs truncate">{file.name}</p>
-                            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} كيلوبايت</p>
-                          </div>
+                <div>
+                  <Label htmlFor="description">وصف المشكلة</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    placeholder="صف المشكلة بالتفصيل"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                    rows={4}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="preferredDate">التاريخ المفضل</Label>
+                    <Input
+                      id="preferredDate"
+                      name="preferredDate"
+                      type="date"
+                      value={formData.preferredDate}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="preferredTime">الوقت المفضل</Label>
+                    <Select
+                      value={formData.preferredTime}
+                      onValueChange={(value) => handleSelectChange('preferredTime', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر الوقت المفضل" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['صباحاً (8-12)', 'ظهراً (12-4)', 'مساءً (4-8)'].map((time) => (
+                          <SelectItem key={time} value={time}>{time}</SelectItem>
                         ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-center py-3">لا توجد مرفقات</p>
-                    )}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Step 5: Submit */}
-            {currentStep === 5 && (
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100 animate-fade-in text-center">
-                <div className="flex flex-col items-center justify-center py-10">
-                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+            {currentStep === 'payment' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-primary mb-6">طريقة الدفع</h2>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="radio"
+                      id="credit"
+                      name="paymentMethod"
+                      value="credit"
+                      checked={formData.paymentMethod === 'credit'}
+                      onChange={handleChange}
+                      className="ml-2"
+                    />
+                    <Label htmlFor="credit">بطاقة ائتمان</Label>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">تأكيد إرسال الطلب</h2>
-                  <p className="text-gray-600 max-w-md mb-8">
-                    هل أنت متأكد من إرسال طلب الصيانة؟ بعد الإرسال، سيتم مراجعة طلبك وإعلامك بالخطوات التالية.
-                  </p>
                   
-                  <Button 
-                    type="submit" 
-                    size="lg"
-                    className="w-full max-w-xs flex items-center justify-center gap-2"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    ) : (
-                      <>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                        <span>إرسال الطلب</span>
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="radio"
+                      id="cash"
+                      name="paymentMethod"
+                      value="cash"
+                      checked={formData.paymentMethod === 'cash'}
+                      onChange={handleChange}
+                      className="ml-2"
+                    />
+                    <Label htmlFor="cash">الدفع عند الزيارة</Label>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6 mt-8">
+                  <h3 className="text-lg font-bold mb-4">تفاصيل الطلب</h3>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الخدمة</span>
+                      <span className="font-medium">{formData.serviceType || 'غير محدد'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">الأولوية</span>
+                      <span className="font-medium">{formData.urgency || 'غير محدد'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">رسوم الكشف</span>
+                      <span className="font-medium">150 ريال</span>
+                    </div>
+                  </div>
+                  
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    <div className="flex justify-between font-bold">
+                      <span>الإجمالي</span>
+                      <span>150 ريال</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      * سيتم تحديد التكلفة النهائية بعد الكشف على الموقع وتحديد نطاق العمل المطلوب
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 'confirmation' && (
+              <div className="text-center py-8 space-y-6">
+                <div className="bg-green-100 text-green-600 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-6">
+                  <CheckCircle size={48} />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-primary">تم استلام طلبك بنجاح!</h2>
+                
+                <p className="text-gray-600 max-w-md mx-auto">
+                  شكراً لك! لقد تم استلام طلب الصيانة الخاص بك وسيقوم فريقنا بالتواصل معك قريباً لتأكيد التفاصيل وتحديد موعد الزيارة.
+                </p>
+
+                <div className="bg-gray-50 p-6 rounded-lg mt-8">
+                  <h3 className="text-lg font-medium mb-4">ملخص الطلب</h3>
+                  
+                  <div className="grid grid-cols-2 gap-y-2 text-right">
+                    <span className="text-gray-500">نوع الخدمة:</span>
+                    <span>{formData.serviceType}</span>
+                    
+                    <span className="text-gray-500">الأولوية:</span>
+                    <span>{formData.urgency}</span>
+                    
+                    <span className="text-gray-500">التاريخ المفضل:</span>
+                    <span>{formData.preferredDate || 'غير محدد'}</span>
+                    
+                    <span className="text-gray-500">الوقت المفضل:</span>
+                    <span>{formData.preferredTime || 'غير محدد'}</span>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              {currentStep > 1 && (
+            {currentStep !== 'confirmation' && (
+              <div className="flex justify-between mt-10">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={prevStep}
-                  className="flex items-center gap-2"
+                  onClick={goToPreviousStep}
+                  disabled={currentStep === 'information'}
                 >
-                  <span>السابق</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:transform rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  السابق
                 </Button>
-              )}
-              
-              {currentStep < steps.length && (
                 <Button
                   type="button"
-                  onClick={nextStep}
-                  className="flex items-center gap-2 mr-auto"
+                  onClick={goToNextStep}
+                  disabled={isSubmitting}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:transform rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  <span>التالي</span>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      جاري المعالجة...
+                    </>
+                  ) : currentStep === 'payment' ? 'إرسال الطلب' : 'التالي'}
                 </Button>
-              )}
+              </div>
+            )}
+
+            {currentStep === 'confirmation' && (
+              <div className="mt-8">
+                <Button 
+                  className="w-full"
+                  onClick={resetForm}
+                >
+                  طلب خدمة أخرى
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Services Overview */}
+      {currentStep !== 'confirmation' && (
+        <section className="section-padding">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12 reveal">
+              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">خدمات الصيانة</h2>
+              <p className="text-secondary max-w-2xl mx-auto">
+                نقدم مجموعة متكاملة من خدمات الصيانة بأعلى معايير الجودة وبأسعار تنافسية
+              </p>
             </div>
-          </form>
-        </Form>
-      </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  title: "صيانة المنشآت السكنية",
+                  description: "خدمات صيانة شاملة للفلل والشقق والمجمعات السكنية تشمل أعمال الكهرباء والسباكة والتكييف وغيرها."
+                },
+                {
+                  title: "صيانة المنشآت التجارية",
+                  description: "خدمات صيانة احترافية للمكاتب والمحلات التجارية والمولات لضمان استمرارية العمل بدون انقطاع."
+                },
+                {
+                  title: "صيانة المنشآت الصناعية",
+                  description: "خدمات صيانة متخصصة للمصانع والمستودعات والمنشآت الصناعية بمختلف أنواعها."
+                }
+              ].map((service, index) => (
+                <div 
+                  key={index} 
+                  className="bg-white p-6 rounded-lg shadow-md reveal"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <h3 className="font-bold text-xl mb-3 text-primary">{service.title}</h3>
+                  <p className="text-secondary">{service.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 };
