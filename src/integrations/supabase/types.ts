@@ -59,6 +59,44 @@ export type Database = {
           },
         ]
       }
+      attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          maintenance_request_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          maintenance_request_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          maintenance_request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_maintenance_request_id_fkey"
+            columns: ["maintenance_request_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: string | null
@@ -199,6 +237,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      maintenance_requests: {
+        Row: {
+          branch_id: string
+          created_at: string
+          description: string | null
+          due_date: string
+          estimated_cost: number | null
+          id: string
+          priority: string
+          service_type: string
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          description?: string | null
+          due_date: string
+          estimated_cost?: number | null
+          id?: string
+          priority: string
+          service_type: string
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          estimated_cost?: number | null
+          id?: string
+          priority?: string
+          service_type?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       users: {
         Row: {
