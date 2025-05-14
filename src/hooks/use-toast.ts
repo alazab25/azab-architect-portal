@@ -15,6 +15,8 @@ export type Toast = {
   description?: React.ReactNode
   action?: ToastActionElement
   variant?: "default" | "destructive"
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const actionTypes = {
@@ -127,9 +129,11 @@ function dispatch(action: Action) {
   })
 }
 
-type Toast2 = Omit<Toast, "id">
+type Toast2 = Omit<Toast, "id"> & {
+  duration?: number // Add duration property to Toast2 type
+}
 
-function toast({ ...props }: Toast2) {
+function toast({ duration = 5000, ...props }: Toast2) {
   const id = crypto.randomUUID()
 
   const update = (props: Toast2) =>
@@ -152,6 +156,13 @@ function toast({ ...props }: Toast2) {
       },
     },
   })
+
+  // Set auto-dismiss timeout based on duration
+  if (duration) {
+    setTimeout(() => {
+      dismiss()
+    }, duration)
+  }
 
   return {
     id,
