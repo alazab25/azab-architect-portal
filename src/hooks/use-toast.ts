@@ -1,195 +1,109 @@
 
 import * as React from "react"
+import { createContext, useContext } from "react";
+import type {
+  ToastActionElement,
+  ToastProps,
+} from "@/components/ui/toast"
 
-const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000000
-
-type ToastActionElement = React.ReactElement<{
-  altText: string
-  onClick: () => void
-}>
-
-export type Toast = {
+type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  variant?: "default" | "destructive"
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
 }
 
-const actionTypes = {
-  ADD_TOAST: "ADD_TOAST",
-  UPDATE_TOAST: "UPDATE_TOAST",
-  DISMISS_TOAST: "DISMISS_TOAST",
-  REMOVE_TOAST: "REMOVE_TOAST",
-} as const
-
-type ActionType = typeof actionTypes
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"]
-      toast: Toast
-    }
-  | {
-      type: ActionType["UPDATE_TOAST"]
-      toast: Partial<Toast> & Pick<Toast, "id">
-    }
-  | {
-      type: ActionType["DISMISS_TOAST"]
-      toastId: Toast["id"]
-    }
-  | {
-      type: ActionType["REMOVE_TOAST"]
-      toastId: Toast["id"]
-    }
-
-interface State {
-  toasts: Toast[]
+const initialState: {
+  toasts: ToasterToast[]
+} = {
+  toasts: [],
 }
 
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+type ToastContextType = {
+  toasts: ToasterToast[]
+  addToast: (toast: Omit<ToasterToast, "id">) => void
+  updateToast: (toast: ToasterToast) => void
+  removeToast: (id: string) => void
+}
 
-const addToRemoveQueue = (toastId: string) => {
-  if (toastTimeouts.has(toastId)) {
-    return
-  }
+const ToastContext = createContext<ToastContextType>({
+  toasts: initialState.toasts,
+  addToast: () => {},
+  updateToast: () => {},
+  removeToast: () => {},
+})
 
-  const timeout = setTimeout(() => {
-    toastTimeouts.delete(toastId)
-    dispatch({
-      type: actionTypes.REMOVE_TOAST,
-      toastId,
+export const ToastContextProvider = ({
+  children,
+}: React.PropsWithChildren<{}>) => {
+  const [state, setState] = React.useState(initialState)
+
+  const addToast = React.useCallback((toast: Omit<ToasterToast, "id">) => {
+    setState((prevState) => {
+      const id = Math.random().toString(36).substring(2, 9)
+      return {
+        toasts: [
+          ...prevState.toasts,
+          { id, ...toast },
+        ],
+      }
     })
-  }, TOAST_REMOVE_DELAY)
+  }, [])
 
-  toastTimeouts.set(toastId, timeout)
-}
-
-export const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case actionTypes.ADD_TOAST:
-      return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
-      }
-
-    case actionTypes.UPDATE_TOAST:
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === action.toast.id ? { ...t, ...action.toast } : t
-        ),
-      }
-
-    case actionTypes.DISMISS_TOAST: {
-      const { toastId } = action
-
-      if (toastId) {
-        addToRemoveQueue(toastId)
-      }
-
-      return {
-        ...state,
-        toasts: state.toasts.map((t) =>
-          t.id === toastId || toastId === undefined
-            ? {
-                ...t,
-                open: false,
-              }
-            : t
-        ),
-      }
-    }
-
-    case actionTypes.REMOVE_TOAST:
-      if (action.toastId === undefined) {
-        return {
-          ...state,
-          toasts: [],
-        }
-      }
-      return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
-      }
-  }
-}
-
-const listeners: Array<(state: State) => void> = []
-
-let memoryState: State = { toasts: [] }
-
-function dispatch(action: Action) {
-  memoryState = reducer(memoryState, action)
-  listeners.forEach((listener) => {
-    listener(memoryState)
-  })
-}
-
-type Toast2 = Omit<Toast, "id"> & {
-  duration?: number // Add duration property to Toast2 type
-}
-
-function toast({ duration = 5000, ...props }: Toast2) {
-  const id = crypto.randomUUID()
-
-  const update = (props: Toast2) =>
-    dispatch({
-      type: actionTypes.UPDATE_TOAST,
-      toast: { ...props, id },
+  const updateToast = React.useCallback((toast: ToasterToast) => {
+    setState((prevState) => {
+      const toasts = prevState.toasts.map((t) =>
+        t.id === toast.id ? { ...t, ...toast } : t
+      )
+      return { toasts }
     })
+  }, [])
 
-  const dismiss = () =>
-    dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id })
+  const removeToast = React.useCallback((id: string) => {
+    setState((prevState) => {
+      const toasts = prevState.toasts.filter((t) => t.id !== id)
+      return { toasts }
+    })
+  }, [])
 
-  dispatch({
-    type: actionTypes.ADD_TOAST,
-    toast: {
-      ...props,
-      id,
-      open: true,
-      onOpenChange: (open) => {
-        if (!open) dismiss()
-      },
-    },
-  })
-
-  // Set auto-dismiss timeout based on duration
-  if (duration) {
-    setTimeout(() => {
-      dismiss()
-    }, duration)
-  }
-
-  return {
-    id,
-    dismiss,
-    update,
-  }
+  return (
+    <ToastContext.Provider
+      value={{
+        toasts: state.toasts,
+        addToast,
+        updateToast,
+        removeToast,
+      }}
+    >
+      {children}
+    </ToastContext.Provider>
+  )
 }
 
-function useToast() {
-  const [state, setState] = React.useState<State>(memoryState)
+export const useToast = () => {
+  const context = useContext(ToastContext)
+  if (context === undefined) {
+    throw new Error("useToast must be used within a ToastProvider")
+  }
+  return context
+}
 
-  React.useEffect(() => {
-    listeners.push(setState)
-    return () => {
-      const index = listeners.indexOf(setState)
-      if (index > -1) {
-        listeners.splice(index, 1)
-      }
+type Toast = Omit<ToasterToast, "id">
+
+export const toast = (props: Toast) => {
+  const { addToast } = useToast()
+  return addToast(props)
+}
+
+toast.dismiss = (toastId?: string) => {
+  const { toasts, removeToast } = useToast()
+  if (toastId) {
+    removeToast(toastId)
+  } else {
+    for (const toast of toasts) {
+      removeToast(toast.id)
     }
-  }, [state])
-
-  return {
-    ...state,
-    toast,
-    dismiss: (toastId?: string) =>
-      dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   }
 }
 
-export { useToast, toast }
+export type { Toast }

@@ -7,23 +7,22 @@ import {
   Users,
   FileText,
   ChevronRight,
-  Heart
+  Heart,
+  Menu
 } from "lucide-react";
 import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarGroup,
-  SidebarGroupLabel,
-} from "@/components/ui/sidebar";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export function AppSidebar() {
   const location = useLocation();
+  const [open, setOpen] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -68,46 +67,51 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar side="right" className="rtl hidden md:block">
-      <SidebarHeader className="flex items-center justify-between p-4 border-b border-muted">
-        <div className="flex items-center">
-          <span className="text-xl font-bold text-primary">العزب للمقاولات</span>
-        </div>
-      </SidebarHeader>
-      
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>القائمة الرئيسية</SidebarGroupLabel>
-          <SidebarMenu>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild className="fixed top-4 left-4 z-50 md:top-6 md:left-6 bg-primary text-white rounded-full p-2 shadow-lg">
+        <button aria-label="فتح القائمة" className="hover:bg-primary-light transition-colors">
+          <Menu size={24} />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="right" className="bg-white border-l border-gray-200 shadow-xl w-[300px] p-0 overflow-y-auto">
+        <SheetHeader className="bg-primary text-white p-6 border-b border-gray-200">
+          <SheetTitle className="text-2xl font-bold">العزب للمقاولات</SheetTitle>
+        </SheetHeader>
+        
+        <div className="py-4">
+          <div className="px-4 mb-4">
+            <h3 className="text-lg font-semibold text-primary mb-2">القائمة الرئيسية</h3>
+          </div>
+          
+          <nav className="flex flex-col" dir="rtl">
             {menuItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton 
-                  isActive={isActive(item.path)} 
-                  tooltip={item.title}
-                  asChild
-                >
-                  <Link to={item.path} className="flex items-center">
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center">
-                        <item.icon className="ltr:mr-2 rtl:ml-2 h-5 w-5" />
-                        <span>{item.title}</span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 opacity-50" />
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-6 py-3.5 hover:bg-gray-100 transition-colors ${
+                  isActive(item.path) 
+                    ? "bg-primary/10 border-r-4 border-primary text-primary font-medium" 
+                    : "text-gray-700"
+                }`}
+                onClick={() => setOpen(false)}
+              >
+                <item.icon className="h-5 w-5" />
+                <span className="text-base">{item.title}</span>
+                {isActive(item.path) && (
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                )}
+              </Link>
             ))}
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-      
-      <SidebarFooter className="p-4 border-t border-muted">
-        <div className="text-center text-sm text-muted-foreground">
-          <p>© 2025 شركة العزب للمقاولات</p>
-          <p>جميع الحقوق محفوظة</p>
+          </nav>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+        
+        <div className="mt-auto p-6 border-t border-gray-200 text-center">
+          <div className="text-sm text-gray-500">
+            <p>© 2025 شركة العزب للمقاولات</p>
+            <p>جميع الحقوق محفوظة</p>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
