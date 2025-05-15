@@ -2,12 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { LayoutGrid, Smartphone, Code, Camera, TrendingUp } from 'lucide-react';
 
+// Category filters with icons
 const projectCategories = [
-  { id: 'all', name: 'الكل' },
-  { id: 'residential', name: 'سكني' },
-  { id: 'commercial', name: 'تجاري' },
-  { id: 'industrial', name: 'صناعي' },
+  { id: 'all', name: 'الكل', icon: LayoutGrid },
+  { id: 'residential', name: 'سكني', icon: Code },
+  { id: 'commercial', name: 'تجاري', icon: Smartphone },
+  { id: 'industrial', name: 'صناعي', icon: TrendingUp },
 ];
 
 const projects = [
@@ -88,7 +90,7 @@ const ProjectsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12 reveal">
           <div className="mb-2 inline-block">
-            <span className="bg-accent/20 text-accent px-4 py-1 rounded-full text-sm font-medium">مشاريعنا</span>
+            <span className="bg-accent/90 text-primary px-4 py-1 rounded-full text-sm font-medium">معرض الأعمال</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">أحدث الأعمال المنجزة</h2>
           <p className="text-secondary max-w-2xl mx-auto">
@@ -97,20 +99,24 @@ const ProjectsSection = () => {
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8 reveal">
-          {projectCategories.map((category) => (
-            <button
-              key={category.id}
-              className={`px-4 py-2 rounded-full transition-all ${
-                activeCategory === category.id
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-              }`}
-              onClick={() => setActiveCategory(category.id)}
-            >
-              {category.name}
-            </button>
-          ))}
+        <div className="flex flex-wrap justify-center gap-3 mb-8 reveal">
+          {projectCategories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <button
+                key={category.id}
+                className={`px-4 py-2 rounded-full transition-all flex items-center gap-2 ${
+                  activeCategory === category.id
+                    ? 'bg-accent text-primary'
+                    : 'bg-gray-800/10 hover:bg-gray-800/20 text-gray-700'
+                }`}
+                onClick={() => setActiveCategory(category.id)}
+              >
+                <Icon size={18} />
+                {category.name}
+              </button>
+            );
+          })}
         </div>
 
         {/* Projects Grid */}
@@ -127,7 +133,7 @@ const ProjectsSection = () => {
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-primary bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button 
                     className="bg-white text-primary font-medium py-2 px-4 rounded-full transform -translate-y-10 group-hover:translate-y-0 transition-all"
                     onClick={() => navigate(`/projects/${project.id}`)}
@@ -148,7 +154,7 @@ const ProjectsSection = () => {
 
         <div className="text-center mt-12 reveal">
           <Button
-            className="btn-primary"
+            className="bg-primary hover:bg-primary-light text-white"
             onClick={() => navigate('/projects')}
           >
             عرض جميع المشاريع

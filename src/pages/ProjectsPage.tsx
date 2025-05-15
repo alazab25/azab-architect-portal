@@ -1,132 +1,38 @@
 
-import Layout from '../components/Layout';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Eye } from 'lucide-react';
+import { LayoutGrid, Smartphone, Code, Camera, TrendingUp } from 'lucide-react';
+import { getAllProjects } from '../utils/projectsData';
 
-const projects = [
-  {
-    id: 1,
-    title: 'برج السلام التجاري',
-    category: 'مباني تجارية',
-    location: 'الرياض، المملكة العربية السعودية',
-    year: '2023',
-    description: 'برج مكتبي حديث يتألف من 25 طابقاً، صمم وفقاً لأحدث معايير الاستدامة والكفاءة الطاقية.',
-    image: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1486325212027-8081e485255e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1481253127861-534498168948?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1492455417212-e162ed4446e1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 2,
-    title: 'مجمع الواحة السكني',
-    category: 'مباني سكنية',
-    location: 'جدة، المملكة العربية السعودية',
-    year: '2022',
-    description: 'مجمع سكني فاخر يضم 120 وحدة سكنية متنوعة، مع خدمات ومرافق متكاملة تلبي احتياجات السكان.',
-    image: 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1507149833265-60c372daea22?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 3,
-    title: 'مستشفى الرحمة',
-    category: 'مباني صحية',
-    location: 'الدمام، المملكة العربية السعودية',
-    year: '2022',
-    description: 'مستشفى حديث يضم 250 سريراً، مجهز بأحدث التقنيات الطبية والتصميم الذي يراعي راحة المرضى والكادر الطبي.',
-    image: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1512678080530-7760d81faba6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 4,
-    title: 'مول الأندلس',
-    category: 'مباني تجارية',
-    location: 'الرياض، المملكة العربية السعودية',
-    year: '2021',
-    description: 'مركز تسوق عصري يمتد على مساحة 85,000 متر مربع، يضم أكثر من 200 متجر ومطعم ومرافق ترفيهية متنوعة.',
-    image: 'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1604014237800-1c9102c219da?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 5,
-    title: 'فندق القمة',
-    category: 'مباني سياحية',
-    location: 'مكة المكرمة، المملكة العربية السعودية',
-    year: '2021',
-    description: 'فندق فخم يضم 350 غرفة وجناحاً، مع مرافق متعددة ومطاعم عالمية وقاعات مؤتمرات مجهزة بأحدث التقنيات.',
-    image: 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1551632436-cbf726cbfb8b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 6,
-    title: 'مدرسة المستقبل الدولية',
-    category: 'مباني تعليمية',
-    location: 'جدة، المملكة العربية السعودية',
-    year: '2020',
-    description: 'مجمع تعليمي متكامل يضم مراحل تعليمية مختلفة، مع مرافق رياضية وترفيهية ومختبرات علمية متطورة.',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 7,
-    title: 'مصنع النور',
-    category: 'مباني صناعية',
-    location: 'الدمام، المملكة العربية السعودية',
-    year: '2020',
-    description: 'منشأة صناعية حديثة تمتد على مساحة 12,000 متر مربع، مصممة وفق أحدث معايير السلامة والكفاءة الإنتاجية.',
-    image: 'https://images.unsplash.com/photo-1518866958548-51a748102f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1518866958548-51a748102f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1565861748877-7194b889b660?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1516937941344-00b4e0337589?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
-  {
-    id: 8,
-    title: 'حديقة الأمير محمد',
-    category: 'مساحات عامة',
-    location: 'الرياض، المملكة العربية السعودية',
-    year: '2019',
-    description: 'حديقة عامة تمتد على مساحة 25 هكتاراً، تضم مسطحات خضراء ومناطق ترفيهية ومسارات للمشي وبحيرة اصطناعية.',
-    image: 'https://images.unsplash.com/photo-1476231682828-37e571bc172f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    gallery: [
-      'https://images.unsplash.com/photo-1476231682828-37e571bc172f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1497035111255-8294324af5bc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-      'https://images.unsplash.com/photo-1527561010307-3d8a5d024b4f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-    ],
-  },
+// Category filters with icons
+const categories = [
+  { id: 'all', name: 'الكل', icon: LayoutGrid },
+  { id: 'ui-ux', name: 'واجهات المستخدم', icon: Smartphone },
+  { id: 'development', name: 'البناء والتطوير', icon: Code },
+  { id: 'photography', name: 'التصوير الفوتوغرافي', icon: Camera },
+  { id: 'marketing', name: 'التسويق', icon: TrendingUp },
 ];
 
-const categories = ['الكل', 'مباني تجارية', 'مباني سكنية', 'مباني صحية', 'مباني سياحية', 'مباني تعليمية', 'مباني صناعية', 'مساحات عامة'];
-
 const ProjectsPage = () => {
-  const [selectedProject, setSelectedProject] = useState<null | typeof projects[0]>(null);
-  const [filter, setFilter] = useState('الكل');
-  const [filteredProjects, setFilteredProjects] = useState(projects);
+  const navigate = useNavigate();
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     document.title = 'مشاريعنا | شركة العزب للإنشاءات';
+    
+    // Fetch projects data
+    const fetchedProjects = getAllProjects();
+    setProjects(fetchedProjects);
+    setFilteredProjects(fetchedProjects);
+    setIsLoading(false);
     
     const handleScroll = () => {
       const reveals = document.querySelectorAll('.reveal');
@@ -149,21 +55,24 @@ const ProjectsPage = () => {
   }, []);
 
   useEffect(() => {
-    if (filter === 'الكل') {
+    if (filter === 'all') {
       setFilteredProjects(projects);
     } else {
-      setFilteredProjects(projects.filter(project => project.category === filter));
+      // Map our filter categories to the actual category values in projects
+      const categoryMapping = {
+        'ui-ux': 'مباني تجارية',
+        'development': 'مباني سكنية',
+        'photography': 'مباني صحية',
+        'marketing': 'مباني سياحية'
+      };
+      
+      const selectedCategory = categoryMapping[filter] || filter;
+      setFilteredProjects(projects.filter(project => project.category === selectedCategory));
     }
-  }, [filter]);
+  }, [filter, projects]);
 
-  const openProjectDetails = (project: typeof projects[0]) => {
-    setSelectedProject(project);
-    document.body.style.overflow = 'hidden';
-  };
-
-  const closeProjectDetails = () => {
-    setSelectedProject(null);
-    document.body.style.overflow = 'auto';
+  const openProjectDetails = (projectId) => {
+    navigate(`/projects/${projectId}`);
   };
 
   return (
@@ -178,7 +87,10 @@ const ProjectsPage = () => {
           />
         </div>
         <div className="container mx-auto relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">مشاريعنا</h1>
+          <div className="mb-2 inline-block">
+            <span className="bg-accent/90 text-primary px-4 py-1 rounded-full text-sm font-medium">معرض الأعمال</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">مشاريعنا المتميزة</h1>
           <p className="text-white/80 max-w-2xl mx-auto">
             نفخر بمجموعة المشاريع المتميزة التي قمنا بتنفيذها، والتي تعكس التزامنا بالجودة والابتكار
           </p>
@@ -186,60 +98,85 @@ const ProjectsPage = () => {
       </div>
 
       {/* Projects Section */}
-      <section className="section-padding">
+      <section className="section-padding bg-gray-50">
         <div className="container mx-auto px-4">
           {/* Categories Filter */}
           <div className="mb-12 flex flex-wrap justify-center gap-3 reveal">
-            {categories.map((category, index) => (
-              <Button 
-                key={index}
-                onClick={() => setFilter(category)}
-                className={`rounded-full px-6 ${
-                  filter === category 
-                    ? 'bg-primary text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {category}
-              </Button>
-            ))}
+            {categories.map((category) => {
+              const Icon = category.icon;
+              return (
+                <Button 
+                  key={category.id}
+                  onClick={() => setFilter(category.id)}
+                  className={`rounded-full px-6 flex items-center gap-2 ${
+                    filter === category.id 
+                      ? 'bg-accent text-primary' 
+                      : 'bg-gray-800/10 text-gray-700 hover:bg-gray-800/20'
+                  }`}
+                >
+                  <Icon size={18} />
+                  {category.name}
+                </Button>
+              );
+            })}
           </div>
 
           {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project, index) => (
-              <div 
-                key={project.id} 
-                className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all cursor-pointer reveal"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => openProjectDetails(project)}
-              >
-                <div className="aspect-w-16 aspect-h-9">
-                  <img 
-                    src={project.image} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-xl text-primary">{project.title}</h3>
-                    <span className="bg-accent/20 text-accent px-3 py-1 rounded-full text-xs font-medium">
-                      {project.category}
-                    </span>
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((_, index) => (
+                <Card key={index} className="rounded-lg overflow-hidden">
+                  <div className="aspect-w-1 aspect-h-1 bg-gray-300 animate-pulse h-56"></div>
+                  <CardContent className="p-4">
+                    <div className="h-6 bg-gray-300 animate-pulse mb-2 w-2/3 rounded"></div>
+                    <div className="h-4 bg-gray-300 animate-pulse w-1/2 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProjects.map((project, index) => (
+                <Card
+                  key={project.id}
+                  className="overflow-hidden rounded-lg shadow-sm hover:shadow-lg transition-all cursor-pointer reveal bg-white"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => openProjectDetails(project.id)}
+                >
+                  <div className="relative group h-56">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Button 
+                        className="bg-white text-primary hover:bg-white/90 flex items-center gap-2 transform -translate-y-4 group-hover:translate-y-0 transition-all"
+                        size="sm"
+                      >
+                        <Eye size={16} />
+                        عرض المشروع
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-500 mb-3">
-                    <span>{project.location}</span>
-                    <span>{project.year}</span>
-                  </div>
-                  <p className="text-secondary line-clamp-2">{project.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-lg text-primary">{project.title}</h3>
+                      <span className="bg-accent/20 text-accent px-2 py-0.5 text-xs rounded-full">
+                        {project.category}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {project.location}, {project.year}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
           {/* Empty State */}
-          {filteredProjects.length === 0 && (
+          {!isLoading && filteredProjects.length === 0 && (
             <div className="text-center py-12">
               <h3 className="text-xl font-medium text-gray-600 mb-2">لا توجد مشاريع في هذه الفئة حالياً</h3>
               <p className="text-gray-500">يرجى اختيار فئة أخرى لعرض المشاريع المتاحة</p>
@@ -266,65 +203,6 @@ const ProjectsPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Project Details Modal */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-          <div className="max-w-4xl w-full bg-white rounded-lg max-h-[90vh] overflow-y-auto">
-            {/* Gallery */}
-            <div className="relative h-80">
-              {selectedProject.gallery.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${selectedProject.title} - صورة ${index + 1}`}
-                  className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
-                  style={{ opacity: index === 0 ? 1 : 0 }}
-                />
-              ))}
-              <Button 
-                className="absolute top-4 left-4 bg-white/80 text-primary hover:bg-white rounded-full w-10 h-10 p-0"
-                onClick={closeProjectDetails}
-              >
-                &times;
-              </Button>
-            </div>
-            
-            {/* Content */}
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold text-primary">{selectedProject.title}</h2>
-                <span className="bg-accent/20 text-accent px-3 py-1 rounded-full text-sm font-medium">
-                  {selectedProject.category}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                <div>
-                  <p className="text-gray-500 mb-1">الموقع</p>
-                  <p className="font-medium">{selectedProject.location}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 mb-1">سنة الإنجاز</p>
-                  <p className="font-medium">{selectedProject.year}</p>
-                </div>
-              </div>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-medium mb-2">وصف المشروع</h3>
-                <p className="text-secondary">{selectedProject.description}</p>
-              </div>
-              
-              <Button 
-                className="w-full btn-primary"
-                onClick={closeProjectDetails}
-              >
-                إغلاق
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </Layout>
   );
 };
