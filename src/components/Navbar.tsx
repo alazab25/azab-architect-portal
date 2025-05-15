@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import {
   Drawer,
   DrawerClose,
@@ -39,7 +41,8 @@ const Navbar = () => {
     { name: 'الرئيسية', path: '/' },
     { name: 'من نحن', path: '/about' },
     { name: 'خدماتنا', path: '/services' },
-    { name: 'مشاريعنا', path: '/projects' },
+    { name: 'المشاريع', path: '/projects' },
+    { name: 'إدارة المشاريع', path: '/project-management' },
     { name: 'تواصل معنا', path: '/contact' },
     { name: 'طلب صيانة', path: '/maintenance-request' },
   ];
@@ -49,7 +52,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         <Link to="/" className="flex items-center">
           <h1 className={`font-heading font-bold text-xl md:text-2xl ${scrolled ? 'text-primary' : 'text-white'}`}>
-            العزب للإنشاءات
+            العزب للمقاولات
           </h1>
         </Link>
 
@@ -68,46 +71,11 @@ const Navbar = () => {
           ))}
         </nav>
 
+        {/* Sidebar Trigger for Desktop */}
         <div className="hidden md:block">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button 
-                className={`btn-primary transition-colors ${scrolled ? 'bg-primary text-white' : 'bg-white text-primary'}`}
-              >
-                القائمة الرئيسية
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="rtl">
-              <DrawerHeader className="text-right">
-                <DrawerTitle className="text-2xl font-bold text-primary">العزب للإنشاءات</DrawerTitle>
-                <DrawerDescription className="text-muted-foreground">
-                  تصفح جميع صفحات الموقع
-                </DrawerDescription>
-              </DrawerHeader>
-              
-              <div className="p-4">
-                <div className="grid grid-cols-1 gap-4">
-                  {navLinks.map((link) => (
-                    <DrawerClose key={link.path} asChild>
-                      <Link 
-                        to={link.path}
-                        className="flex items-center justify-between p-4 rounded-lg bg-muted hover:bg-primary/10 transition-colors group"
-                      >
-                        <span className="text-lg font-medium">{link.name}</span>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      </Link>
-                    </DrawerClose>
-                  ))}
-                </div>
-              </div>
-              
-              <DrawerFooter className="border-t pt-6">
-                <DrawerClose asChild>
-                  <Button className="w-full">إغلاق</Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
-          </Drawer>
+          <SidebarTrigger
+            className={`btn-primary transition-colors ${scrolled ? 'text-primary' : 'text-white'}`}
+          />
         </div>
 
         {/* Mobile Menu Button */}
@@ -147,7 +115,7 @@ const Navbar = () => {
                 </DrawerTrigger>
                 <DrawerContent className="rtl">
                   <DrawerHeader className="text-right">
-                    <DrawerTitle className="text-2xl font-bold text-primary">العزب للإنشاءات</DrawerTitle>
+                    <DrawerTitle className="text-2xl font-bold text-primary">العزب للمقاولات</DrawerTitle>
                     <DrawerDescription className="text-muted-foreground">
                       تصفح جميع صفحات الموقع
                     </DrawerDescription>
@@ -180,6 +148,9 @@ const Navbar = () => {
           </div>
         </div>
       )}
+
+      {/* Render the sidebar */}
+      <AppSidebar />
     </header>
   );
 };
