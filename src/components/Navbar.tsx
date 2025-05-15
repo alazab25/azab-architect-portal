@@ -1,8 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +41,7 @@ const Navbar = () => {
     { name: 'خدماتنا', path: '/services' },
     { name: 'مشاريعنا', path: '/projects' },
     { name: 'تواصل معنا', path: '/contact' },
+    { name: 'طلب صيانة', path: '/maintenance-request' },
   ];
 
   return (
@@ -58,9 +69,45 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden md:block">
-          <Button asChild className="btn-primary">
-            <Link to="/contact">اتصل بنا</Link>
-          </Button>
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button 
+                className={`btn-primary transition-colors ${scrolled ? 'bg-primary text-white' : 'bg-white text-primary'}`}
+              >
+                القائمة الرئيسية
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="rtl">
+              <DrawerHeader className="text-right">
+                <DrawerTitle className="text-2xl font-bold text-primary">العزب للإنشاءات</DrawerTitle>
+                <DrawerDescription className="text-muted-foreground">
+                  تصفح جميع صفحات الموقع
+                </DrawerDescription>
+              </DrawerHeader>
+              
+              <div className="p-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {navLinks.map((link) => (
+                    <DrawerClose key={link.path} asChild>
+                      <Link 
+                        to={link.path}
+                        className="flex items-center justify-between p-4 rounded-lg bg-muted hover:bg-primary/10 transition-colors group"
+                      >
+                        <span className="text-lg font-medium">{link.name}</span>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </Link>
+                    </DrawerClose>
+                  ))}
+                </div>
+              </div>
+              
+              <DrawerFooter className="border-t pt-6">
+                <DrawerClose asChild>
+                  <Button className="w-full">إغلاق</Button>
+                </DrawerClose>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
         </div>
 
         {/* Mobile Menu Button */}
@@ -92,9 +139,43 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              <Button asChild className="btn-primary mt-4 w-full">
-                <Link to="/contact" onClick={() => setIsOpen(false)}>اتصل بنا</Link>
-              </Button>
+              <Drawer>
+                <DrawerTrigger asChild>
+                  <Button className="btn-primary mt-4 w-full" onClick={() => setIsOpen(false)}>
+                    القائمة الرئيسية
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="rtl">
+                  <DrawerHeader className="text-right">
+                    <DrawerTitle className="text-2xl font-bold text-primary">العزب للإنشاءات</DrawerTitle>
+                    <DrawerDescription className="text-muted-foreground">
+                      تصفح جميع صفحات الموقع
+                    </DrawerDescription>
+                  </DrawerHeader>
+                  
+                  <div className="p-4">
+                    <div className="grid grid-cols-1 gap-4">
+                      {navLinks.map((link) => (
+                        <DrawerClose key={link.path} asChild>
+                          <Link 
+                            to={link.path}
+                            className="flex items-center justify-between p-4 rounded-lg bg-muted hover:bg-primary/10 transition-colors group"
+                          >
+                            <span className="text-lg font-medium">{link.name}</span>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                          </Link>
+                        </DrawerClose>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <DrawerFooter className="border-t pt-6">
+                    <DrawerClose asChild>
+                      <Button className="w-full">إغلاق</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
             </nav>
           </div>
         </div>
