@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Eye, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Eye, Trash2, Store } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,21 +19,23 @@ const ProjectManagementPage = () => {
   const [projects, setProjects] = useState([
     {
       id: 1,
-      title: 'المنصورة',
-      location: 'المنصورة',
-      category: 'الفئة: المباني التجارية',
-      description: 'مشروع إنشاء داخلي كامل يشمل تشطيبات وأبواب وكهرباء',
-      progress: 65,
-      image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+      title: 'محلات أبو عوف',
+      location: 'مول أركان - القاهرة',
+      category: 'الفئة: المحلات التجارية',
+      description: 'تصميم وتنفيذ محل لبيع المكسرات والبن بمساحة 85 متر مربع',
+      progress: 100,
+      completed: true,
+      image: 'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
       id: 2,
-      title: 'التجمع الخامس',
-      location: 'التجمع الخامس',
-      category: 'الفئة: المباني التجارية',
-      description: 'كافة المعلومات والتفاصيل المتعلقة بالمشروع ومعلومات المشروع واسم المشروع والمنطقة المطلوبة للمباني التجارية',
-      progress: 10,
-      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+      title: 'أبو عوف',
+      location: 'نادي وادي دجلة - المعادي',
+      category: 'الفئة: المحلات التجارية',
+      description: 'تصميم وتنفيذ محل أبو عوف للمكسرات والبن بمساحة 65 متر مربع',
+      progress: 100,
+      completed: true,
+      image: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
       id: 3,
@@ -41,54 +43,60 @@ const ProjectManagementPage = () => {
       location: 'المنصورة',
       category: 'الفئة: المباني التجارية',
       description: 'مشروع إنشاء داخلي كامل يشمل تشطيبات وأبواب وكهرباء',
-      progress: 45,
+      progress: 65,
+      completed: false,
       image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
       id: 4,
+      title: 'التجمع الخامس',
+      location: 'التجمع الخامس',
+      category: 'الفئة: المباني التجارية',
+      description: 'كافة المعلومات والتفاصيل المتعلقة بالمشروع ومعلومات المشروع واسم المشروع والمنطقة المطلوبة للمباني التجارية',
+      progress: 10,
+      completed: false,
+      image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+    },
+    {
+      id: 5,
+      title: 'أبو عوف',
+      location: 'مول مصر - 6 أكتوبر',
+      category: 'الفئة: المحلات التجارية',
+      description: 'تنفيذ وتجهيز محل أبو عوف بمساحة 100 متر مربع مع نظام تخزين متطور',
+      progress: 100,
+      completed: true,
+      image: 'https://images.unsplash.com/photo-1604719312566-8912e9c8a213?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+    },
+    {
+      id: 6,
       title: 'أرشيف القطامية',
       location: 'القطامية',
       category: 'الفئة: المكاتبية',
       description: 'تنظيم أرشيف وإنشاء رفوف داخل المخزن',
       progress: 35,
+      completed: false,
       image: 'https://images.unsplash.com/photo-1460574283810-2aab119d8511?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 5,
+      id: 7,
+      title: 'أبو عوف',
+      location: 'سيتي ستارز - مدينة نصر',
+      category: 'الفئة: المحلات التجارية',
+      description: 'تصميم وتنفيذ محل أبو عوف للمكسرات والبن بمساحة 90 متر مربع',
+      progress: 100,
+      completed: true,
+      image: 'https://images.unsplash.com/photo-1604669699786-58955622e53a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+    },
+    {
+      id: 8,
       title: 'فرع طنطا الاستاد',
       location: 'طنطا - منطقة الاستاد',
       category: 'الفئة: المباني التجارية',
       description: 'مشروع إنشاء داخلي كامل يشمل تشطيبات وأبواب وكهرباء',
       progress: 20,
+      completed: false,
       image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
-    {
-      id: 6,
-      title: 'فرع دمنهور',
-      location: 'دمنهور - وسط البلد',
-      category: 'الفئة: المباني التجارية',
-      description: 'إنشاء كامل من الصفر مع بناء داخلي وخارجي',
-      progress: 5,
-      image: 'https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-    },
-    {
-      id: 7,
-      title: 'فرع بورتو السخنة',
-      location: 'بورتو السخنة',
-      category: 'الفئة: المباني التجارية',
-      description: 'أعمال تأسيس وتخطيط خارجي لموقع جديد',
-      progress: 0,
-      image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-    },
-    {
-      id: 8,
-      title: 'فرع بنها',
-      location: 'بنها - شارع فريد ندا',
-      category: 'الفئة: المباني التجارية',
-      description: 'تشطيبات داخلي وديكور الواجهات',
-      progress: 10,
-      image: 'https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-    }
   ]);
 
   const handleDeleteProject = (id: number) => {
@@ -143,9 +151,21 @@ const ProjectManagementPage = () => {
                     alt={project.title} 
                     className="w-full h-full object-cover" 
                   />
-                  <div className="absolute top-3 left-3 bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
-                    جديد
-                  </div>
+                  {project.completed ? (
+                    <div className="absolute top-3 left-3 bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+                      مكتمل
+                    </div>
+                  ) : (
+                    <div className="absolute top-3 left-3 bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
+                      جديد
+                    </div>
+                  )}
+                  {project.title.includes('أبو عوف') && (
+                    <div className="absolute top-3 right-3 bg-white text-primary text-sm px-2 py-1 rounded-full flex items-center gap-1">
+                      <Store size={14} />
+                      <span className="text-xs">متجر تجزئة</span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <div className="flex justify-between items-start mb-2">
@@ -164,7 +184,7 @@ const ProjectManagementPage = () => {
                       </div>
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-teal-500" 
+                          className={`h-full ${project.progress === 100 ? 'bg-green-500' : 'bg-teal-500'}`}
                           style={{ width: `${project.progress}%` }}
                         ></div>
                       </div>
