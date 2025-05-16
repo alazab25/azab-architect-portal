@@ -4,6 +4,12 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Eye, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const ProjectManagementPage = () => {
   useEffect(() => {
@@ -104,10 +110,28 @@ const ProjectManagementPage = () => {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-primary">المشاريع الحديثة</h2>
             
-            <Button variant="default" className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700">
-              <Plus size={18} />
-              إضافة مشروع جديد
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="default" className="flex items-center gap-2 bg-primary hover:bg-primary-light">
+                  <Plus size={18} />
+                  إضافة مشروع جديد
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white">
+                <DropdownMenuItem>
+                  <span>مشروع سكني</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>مشروع تجاري</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>مشروع صناعي</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>مشروع مكاتب</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -149,14 +173,28 @@ const ProjectManagementPage = () => {
                   
                   <div className="flex justify-between items-center mt-4">
                     <div className="space-x-2 flex">
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="flex items-center"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex items-center"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white">
+                          <DropdownMenuItem>
+                            <span>عرض التفاصيل</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <span>تحرير المشروع</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <span>تحديث الحالة</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -165,11 +203,12 @@ const ProjectManagementPage = () => {
                         <Pencil size={16} />
                       </Button>
                       <Button 
-                        variant="outline" 
+                        variant="destructive" 
                         size="sm"
+                        onClick={() => handleDeleteProject(project.id)}
                         className="flex items-center"
                       >
-                        <Eye size={16} />
+                        <Trash2 size={16} />
                       </Button>
                     </div>
                   </div>
@@ -194,10 +233,6 @@ const ProjectManagementPage = () => {
           </div>
         </div>
       </section>
-
-      {/* Project Details Modal (placeholder) */}
-      {/* We would implement project details modal here */}
-
     </Layout>
   );
 };
