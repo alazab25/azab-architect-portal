@@ -7,13 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Link as LinkIcon, Calendar, Building } from 'lucide-react';
 import ProjectImageSlider from '../components/project/ProjectImageSlider';
 import ProjectTechnologies from '../components/project/ProjectTechnologies';
+import ProjectFiles from '../components/project/ProjectFiles';
+import Project3DViewer from '../components/project/Project3DViewer';
 import { getAllProjects } from '../utils/projectsData';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const ProjectDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<any>(null);
   const [nextProject, setNextProject] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const { toast } = useToast();
+  
+  // رابط نموذج ثلاثي الأبعاد
+  const modelUrl = "https://3d.magicplan.app/#embed/?key=YjQyMGRjYzEyMzQ0MGNkNDRmNDkxY2JhMGExOWJjMGRjNmNmNWZmNTFhZDhhZWU2NTg5NmUzMWU5ZDc5MDY4NX8qLopdhgTl4gO6LDC7AZlbe6wfnRUh265CWLtLlLF%2Fmbpi7lJnhRMpmwYnqCOtvQ%3D%3D";
   
   useEffect(() => {
     document.title = 'تفاصيل المشروع | شركة العزب للإنشاءات';
@@ -114,85 +128,124 @@ const ProjectDetailsPage = () => {
                 </div>
               </div>
               
-              <Button className="w-full bg-accent text-primary hover:bg-accent/90 font-medium">
-                عرض المشروع مباشرة
-              </Button>
+              {/* 3D Model Viewer Button */}
+              <Project3DViewer 
+                projectId={project.id}
+                modelUrl={modelUrl}
+                title={`نموذج ${project.title} ثلاثي الأبعاد`}
+              />
             </div>
           </div>
           
-          {/* Project Overview */}
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
-                  <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">1</span>
-                  نظرة عامة عن المشروع
-                </h3>
-                <p className="text-secondary leading-relaxed">
-                  {project.description} {project.description}
-                </p>
-              </div>
+          {/* Tabbed Content */}
+          <div className="mt-12">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="bg-white p-1 border rounded-lg mb-6">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-md">نظرة عامة</TabsTrigger>
+                <TabsTrigger value="files" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-md">ملفات المشروع</TabsTrigger>
+                <TabsTrigger value="technologies" className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-md">التقنيات</TabsTrigger>
+              </TabsList>
               
-              <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
-                  <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">2</span>
-                  التحديات
-                </h3>
-                <p className="text-secondary leading-relaxed">
-                  واجهنا العديد من التحديات خلال تنفيذ هذا المشروع، منها ضيق المساحة وتعقيد التصميم الهندسي، بالإضافة إلى الحاجة لدمج التقنيات الحديثة مع الطابع التقليدي للمبنى، وقد تمكن فريقنا من تجاوز هذه التحديات بفضل خبرتنا الطويلة والتخطيط الدقيق.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
-                  <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">3</span>
-                  الحلول
-                </h3>
-                <p className="text-secondary leading-relaxed mb-6">
-                  قدمنا حلولاً مبتكرة للتغلب على التحديات، حيث استخدمنا تقنيات البناء الحديثة والمواد عالية الجودة لضمان متانة المبنى وجماليته في آن واحد، كما اعتمدنا على تصميم ذكي يستغل المساحة بأقصى كفاءة ممكنة.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[1, 2].map((item) => (
-                    <div key={item} className="border border-gray-200 rounded-lg p-4 flex items-start">
-                      <div className="bg-accent/10 rounded-full p-2 text-accent mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-primary mb-1">استخدام مواد صديقة للبيئة</h4>
-                        <p className="text-sm text-secondary">حرصنا على استخدام مواد بناء صديقة للبيئة ومستدامة لتقليل التأثير البيئي للمشروع.</p>
+              <TabsContent value="overview" className="mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-2">
+                    <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+                      <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
+                        <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">1</span>
+                        نظرة عامة عن المشروع
+                      </h3>
+                      <p className="text-secondary leading-relaxed">
+                        {project.description} {project.description}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+                      <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
+                        <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">2</span>
+                        التحديات
+                      </h3>
+                      <p className="text-secondary leading-relaxed">
+                        واجهنا العديد من التحديات خلال تنفيذ هذا المشروع، منها ضيق المساحة وتعقيد التصميم الهندسي، بالإضافة إلى الحاجة لدمج التقنيات الحديثة مع الطابع التقليدي للمبنى، وقد تمكن فريقنا من تجاوز هذه التحديات بفضل خبرتنا الطويلة والتخطيط الدقيق.
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                      <h3 className="text-xl font-bold text-primary mb-4 flex items-center">
+                        <span className="bg-accent/20 w-10 h-10 rounded-full flex items-center justify-center text-accent mr-3">3</span>
+                        الحلول
+                      </h3>
+                      <p className="text-secondary leading-relaxed mb-6">
+                        قدمنا حلولاً مبتكرة للتغلب على التحديات، حيث استخدمنا تقنيات البناء الحديثة والمواد عالية الجودة لضمان متانة المبنى وجماليته في آن واحد، كما اعتمدنا على تصميم ذكي يستغل المساحة بأقصى كفاءة ممكنة.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[1, 2].map((item) => (
+                          <div key={item} className="border border-gray-200 rounded-lg p-4 flex items-start">
+                            <div className="bg-accent/10 rounded-full p-2 text-accent mr-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                              </svg>
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-primary mb-1">استخدام مواد صديقة للبيئة</h4>
+                              <p className="text-sm text-secondary">حرصنا على استخدام مواد بناء صديقة للبيئة ومستدامة لتقليل التأثير البيئي للمشروع.</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="lg:col-span-1">
+                    {/* Key Features */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+                      <h3 className="text-xl font-bold text-primary mb-4">المميزات الرئيسية</h3>
+                      <ul className="space-y-4">
+                        {['تصميم معماري فريد', 'نظام إضاءة موفر للطاقة', 'مواد بناء عالية الجودة', 'مساحات مفتوحة واسعة'].map((feature, index) => (
+                          <li key={index} className="flex items-center">
+                            <svg className="text-accent mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    {/* Technologies Used */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                      <h3 className="text-xl font-bold text-primary mb-4">التقنيات المستخدمة</h3>
+                      <ProjectTechnologies />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="lg:col-span-1">
-              {/* Key Features */}
-              <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
-                <h3 className="text-xl font-bold text-primary mb-4">المميزات الرئيسية</h3>
-                <ul className="space-y-4">
-                  {['تصميم معماري فريد', 'نظام إضاءة موفر للطاقة', 'مواد بناء عالية الجودة', 'مساحات مفتوحة واسعة'].map((feature, index) => (
-                    <li key={index} className="flex items-center">
-                      <svg className="text-accent mr-3" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </TabsContent>
               
-              {/* Technologies Used */}
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-xl font-bold text-primary mb-4">التقنيات المستخدمة</h3>
-                <ProjectTechnologies />
-              </div>
-            </div>
+              <TabsContent value="files" className="mt-0">
+                <ProjectFiles projectId={project.id} />
+              </TabsContent>
+              
+              <TabsContent value="technologies" className="mt-0">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="text-xl font-bold text-primary mb-6">التقنيات المستخدمة في المشروع</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="border p-6 rounded-lg">
+                      <h4 className="font-bold text-lg mb-4 text-primary">تقنيات البناء</h4>
+                      <ProjectTechnologies />
+                    </div>
+                    <div className="border p-6 rounded-lg">
+                      <h4 className="font-bold text-lg mb-4 text-primary">أنظمة الإضاءة</h4>
+                      <ProjectTechnologies />
+                    </div>
+                    <div className="border p-6 rounded-lg">
+                      <h4 className="font-bold text-lg mb-4 text-primary">أنظمة التكييف</h4>
+                      <ProjectTechnologies />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
           
           {/* Navigation Buttons */}
