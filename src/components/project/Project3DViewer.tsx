@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface Project3DViewerProps {
   projectId: number | string;
@@ -30,10 +31,17 @@ const Project3DViewer: React.FC<Project3DViewerProps> = ({
 }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [rotation, setRotation] = useState(0);
+  const [zoom, setZoom] = useState(100);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { toast } = useToast();
   
   const handleIframeLoad = () => {
     setIsLoading(false);
+    toast({
+      title: "تم تحميل النموذج",
+      description: "تم تحميل النموذج ثلاثي الأبعاد بنجاح",
+    });
   };
 
   const toggleFullScreen = () => {
@@ -48,6 +56,33 @@ const Project3DViewer: React.FC<Project3DViewerProps> = ({
         setIsFullScreen(false);
       }
     }
+  };
+
+  const handleZoomIn = () => {
+    if (zoom < 150) {
+      setZoom(zoom + 10);
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (zoom > 50) {
+      setZoom(zoom - 10);
+    }
+  };
+
+  const handleRotate = () => {
+    setRotation(rotation + 90);
+  };
+
+  const handleDownload = () => {
+    // في النسخة الإنتاجية، يمكن تنفيذ ميزة تحميل النموذج
+    toast({
+      title: "تم بدء التحميل",
+      description: "بدأ تحميل النموذج ثلاثي الأبعاد",
+    });
+    
+    // يمكن فتح نافذة جديدة للرابط المباشر للنموذج
+    window.open(modelUrl, '_blank');
   };
 
   useEffect(() => {
@@ -67,6 +102,7 @@ const Project3DViewer: React.FC<Project3DViewerProps> = ({
       <Dialog>
         <DialogTrigger asChild>
           <Button className="bg-accent text-primary hover:bg-accent/90 font-medium w-full">
+            <Eye className="h-4 w-4 mr-2" />
             عرض المشروع ثلاثي الأبعاد
           </Button>
         </DialogTrigger>
@@ -86,12 +122,27 @@ const Project3DViewer: React.FC<Project3DViewerProps> = ({
             <div className="bg-gray-800 text-white p-3 flex justify-between items-center">
               <h3 className="font-medium text-sm">{title}</h3>
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white" onClick={handleZoomIn}>
+                  <ZoomIn size={16} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white" onClick={handleZoomOut}>
+                  <ZoomOut size={16} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white" onClick={handleRotate}>
+                  <RotateCw size={16} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white" onClick={handleDownload}>
+                  <Download size={16} />
+                </Button>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white" onClick={toggleFullScreen}>
                   <Fullscreen size={16} />
                 </Button>
               </div>
             </div>
-            <div className="h-[calc(100%-48px)] w-full">
+            <div className="h-[calc(100%-48px)] w-full" style={{
+              transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
+              transition: 'transform 0.3s ease'
+            }}>
               <iframe 
                 ref={iframeRef}
                 src={modelUrl}

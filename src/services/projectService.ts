@@ -1,289 +1,229 @@
 
-import { supabase } from "../integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 
-export interface ProjectData {
-  id?: number;
+// واجهة بيانات المشروع
+export interface Project {
+  id: string;
   title: string;
-  location: string;
-  category: string;
-  description: string;
-  progress: number;
-  completed: boolean;
-  image: string;
+  description?: string;
+  location?: string;
+  category?: string;
+  progress?: number;
+  completed?: boolean;
+  image_url?: string;
   model_url?: string;
-  files?: any[];
-  year?: string;
-  gallery?: string[];
+  created_at?: string;
+  updated_at?: string;
 }
 
-/**
- * الحصول على جميع المشاريع
- */
-export const getProjects = async (): Promise<ProjectData[]> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود للحصول على المشاريع من قاعدة البيانات
-    // const { data, error } = await supabase
-    //   .from('projects')
-    //   .select('*')
-    //   .order('created_at', { ascending: false });
-    
-    // if (error) throw error;
-    // return data;
-    
-    // استخدام بيانات تجريبية
-    return [
-      {
-        id: 1,
-        title: 'محلات أبو عوف',
-        location: 'مول أركان - القاهرة',
-        category: 'الفئة: المحلات التجارية',
-        description: 'تصميم وتنفيذ محل لبيع المكسرات والبن بمساحة 85 متر مربع',
-        progress: 100,
-        completed: true,
-        image: 'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-        year: '2023',
-        gallery: [
-          'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1604669699786-58955622e53a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-        ]
-      },
-      {
-        id: 2,
-        title: 'أبو عوف',
-        location: 'نادي وادي دجلة - المعادي',
-        category: 'الفئة: المحلات التجارية',
-        description: 'تصميم وتنفيذ محل أبو عوف للمكسرات والبن بمساحة 65 متر مربع',
-        progress: 100,
-        completed: true,
-        image: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-        year: '2022',
-        gallery: [
-          'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1604669699786-58955622e53a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-        ]
-      },
-      {
-        id: 3,
-        title: 'المنصورة',
-        location: 'المنصورة',
-        category: 'الفئة: المباني التجارية',
-        description: 'مشروع إنشاء داخلي كامل يشمل تشطيبات وأبواب وكهرباء',
-        progress: 65,
-        completed: false,
-        image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-        year: '2023',
-        gallery: [
-          'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
-          'https://images.unsplash.com/photo-1460574283810-2aab119d8511?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
-        ]
-      },
-    ];
-  } catch (error) {
-    console.error("خطأ في الحصول على المشاريع:", error);
-    return [];
+// واجهة بيانات ملف المشروع
+export interface ProjectFile {
+  id: string;
+  project_id: string;
+  name: string;
+  file_path: string;
+  file_type: string;
+  file_size?: number;
+  created_at?: string;
+}
+
+// الحصول على جميع المشاريع
+export const getAllProjects = async (): Promise<Project[]> => {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('خطأ في جلب المشاريع:', error);
+    throw error;
   }
+
+  return data || [];
 };
 
-/**
- * الحصول على مشروع محدد بواسطة المعرف
- */
-export const getProjectById = async (id: number): Promise<ProjectData | null> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود
-    // const { data, error } = await supabase
-    //   .from('projects')
-    //   .select('*')
-    //   .eq('id', id)
-    //   .single();
-    
-    // if (error) throw error;
-    // return data;
-    
-    // استخدام بيانات تجريبية
-    const projects = await getProjects();
-    return projects.find(project => project.id === id) || null;
-  } catch (error) {
-    console.error(`خطأ في الحصول على المشروع رقم ${id}:`, error);
+// الحصول على مشروع محدد
+export const getProject = async (id: string | number): Promise<Project | null> => {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error(`خطأ في جلب المشروع رقم ${id}:`, error);
     return null;
   }
+
+  return data;
 };
 
-/**
- * إضافة مشروع جديد
- */
-export const addProject = async (projectData: ProjectData): Promise<ProjectData | null> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود
-    // const { data, error } = await supabase
-    //   .from('projects')
-    //   .insert(projectData)
-    //   .select('*')
-    //   .single();
-    
-    // if (error) throw error;
-    // return data;
-    
-    // محاكاة الإضافة بدون قاعدة البيانات
-    const newProject: ProjectData = {
-      ...projectData,
-      id: Date.now(),  // استخدام الوقت الحالي كمعرف مؤقت
-    };
-    
-    return newProject;
-  } catch (error) {
-    console.error("خطأ في إضافة المشروع:", error);
-    return null;
+// إضافة مشروع جديد
+export const addProject = async (project: Omit<Project, 'id'>): Promise<Project> => {
+  const { data, error } = await supabase
+    .from('projects')
+    .insert([project])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('خطأ في إضافة المشروع:', error);
+    throw error;
   }
+
+  return data;
 };
 
-/**
- * تحديث مشروع موجود
- */
-export const updateProject = async (id: number, projectData: ProjectData): Promise<ProjectData | null> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود
-    // const { data, error } = await supabase
-    //   .from('projects')
-    //   .update(projectData)
-    //   .eq('id', id)
-    //   .select('*')
-    //   .single();
-    
-    // if (error) throw error;
-    // return data;
-    
-    // محاكاة التحديث بدون قاعدة البيانات
-    const updatedProject: ProjectData = {
-      ...projectData,
-      id: id,
-    };
-    
-    return updatedProject;
-  } catch (error) {
+// تحديث مشروع
+export const updateProject = async (id: string | number, project: Partial<Project>): Promise<Project> => {
+  const { data, error } = await supabase
+    .from('projects')
+    .update(project)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
     console.error(`خطأ في تحديث المشروع رقم ${id}:`, error);
-    return null;
+    throw error;
   }
+
+  return data;
 };
 
-/**
- * حذف مشروع
- */
-export const deleteProject = async (id: number): Promise<boolean> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود
-    // const { error } = await supabase
-    //   .from('projects')
-    //   .delete()
-    //   .eq('id', id);
-    
-    // if (error) throw error;
-    
-    return true;
-  } catch (error) {
+// حذف مشروع
+export const deleteProject = async (id: string | number): Promise<void> => {
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
     console.error(`خطأ في حذف المشروع رقم ${id}:`, error);
-    return false;
+    throw error;
   }
 };
 
-/**
- * تحميل ملفات المشروع
- */
-export const uploadProjectFiles = async (projectId: number, files: File[]): Promise<any[]> => {
-  try {
-    const uploadedFiles = [];
-    
-    // عند تفعيل Supabase Storage، استخدم هذا الكود
-    // for (const file of files) {
-    //   const filePath = `projects/${projectId}/${file.name}`;
-    //   const { data, error } = await supabase.storage
-    //     .from('project-files')
-    //     .upload(filePath, file);
-      
-    //   if (error) throw error;
-      
-    //   // الحصول على عنوان URL العام للملف
-    //   const { data: publicUrl } = supabase.storage
-    //     .from('project-files')
-    //     .getPublicUrl(filePath);
-      
-    //   uploadedFiles.push({
-    //     name: file.name,
-    //     size: file.size,
-    //     type: file.type,
-    //     url: publicUrl.publicUrl
-    //   });
-    // }
-    
-    // محاكاة رفع الملفات
-    for (const file of files) {
-      uploadedFiles.push({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file) // في الإنتاج، سيكون هذا URL حقيقيًا من تخزين Supabase
-      });
+// رفع صورة للمشروع
+export const uploadProjectImage = async (file: File, projectId: string): Promise<string> => {
+  // إنشاء اسم فريد للملف
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${projectId}/image_${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from('project-files')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+
+  if (error) {
+    console.error('خطأ في رفع صورة المشروع:', error);
+    throw error;
+  }
+
+  // الحصول على الرابط العام للصورة
+  const { data: { publicUrl } } = supabase.storage
+    .from('project-files')
+    .getPublicUrl(data.path);
+
+  return publicUrl;
+};
+
+// رفع ملف متعلق بالمشروع
+export const uploadProjectFile = async (
+  file: File,
+  projectId: string,
+  fileName?: string
+): Promise<ProjectFile> => {
+  // إنشاء اسم فريد للملف
+  const fileExt = file.name.split('.').pop();
+  const storageName = `${projectId}/${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+
+  // رفع الملف
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('project-files')
+    .upload(storageName, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+
+  if (uploadError) {
+    console.error('خطأ في رفع ملف المشروع:', uploadError);
+    throw uploadError;
+  }
+
+  // إضافة سجل في قاعدة البيانات
+  const { data: fileData, error: dbError } = await supabase
+    .from('project_files')
+    .insert({
+      project_id: projectId,
+      name: fileName || file.name,
+      file_path: uploadData.path,
+      file_type: file.type,
+      file_size: file.size
+    })
+    .select()
+    .single();
+
+  if (dbError) {
+    console.error('خطأ في حفظ بيانات الملف:', dbError);
+    throw dbError;
+  }
+
+  return fileData;
+};
+
+// الحصول على ملفات المشروع
+export const getProjectFiles = async (projectId: string | number): Promise<ProjectFile[]> => {
+  const { data, error } = await supabase
+    .from('project_files')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error(`خطأ في جلب ملفات المشروع رقم ${projectId}:`, error);
+    throw error;
+  }
+
+  return data || [];
+};
+
+// حذف ملف المشروع
+export const deleteProjectFile = async (fileId: string): Promise<void> => {
+  // الحصول على معلومات الملف
+  const { data: fileData, error: fetchError } = await supabase
+    .from('project_files')
+    .select('file_path')
+    .eq('id', fileId)
+    .single();
+
+  if (fetchError) {
+    console.error(`خطأ في جلب معلومات الملف رقم ${fileId}:`, fetchError);
+    throw fetchError;
+  }
+
+  // حذف الملف من المخزن
+  if (fileData?.file_path) {
+    const { error: storageError } = await supabase.storage
+      .from('project-files')
+      .remove([fileData.file_path]);
+
+    if (storageError) {
+      console.error(`خطأ في حذف الملف من المخزن:`, storageError);
+      // نستمر حتى لو فشل الحذف من المخزن
     }
-    
-    return uploadedFiles;
-  } catch (error) {
-    console.error("خطأ في رفع ملفات المشروع:", error);
-    return [];
   }
-};
 
-/**
- * الحصول على ملفات المشروع
- */
-export const getProjectFiles = async (projectId: number): Promise<any[]> => {
-  try {
-    // عند تفعيل Supabase، استخدم هذا الكود
-    // const { data, error } = await supabase.storage
-    //   .from('project-files')
-    //   .list(`projects/${projectId}`);
-    
-    // if (error) throw error;
-    
-    // const filesWithUrls = data.map(item => {
-    //   const { data: publicUrl } = supabase.storage
-    //     .from('project-files')
-    //     .getPublicUrl(`projects/${projectId}/${item.name}`);
-      
-    //   return {
-    //     name: item.name,
-    //     size: item.metadata.size,
-    //     type: item.metadata.mimetype,
-    //     url: publicUrl.publicUrl
-    //   };
-    // });
-    
-    // return filesWithUrls;
-    
-    // بيانات تجريبية للملفات
-    return [
-      {
-        name: 'مخطط-المشروع.pdf',
-        size: '2.4 MB',
-        type: 'application/pdf',
-        url: 'https://example.com/files/blueprint.pdf'
-      },
-      {
-        name: 'واجهة-المبنى.jpg',
-        size: '1.7 MB',
-        type: 'image/jpeg',
-        url: 'https://images.unsplash.com/photo-1486325212027-8081e485255e'
-      },
-      {
-        name: 'جدول-التكاليف.xlsx',
-        size: '0.5 MB',
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        url: 'https://example.com/files/costs.xlsx'
-      }
-    ];
-  } catch (error) {
-    console.error(`خطأ في الحصول على ملفات المشروع رقم ${projectId}:`, error);
-    return [];
+  // حذف سجل الملف من قاعدة البيانات
+  const { error: dbError } = await supabase
+    .from('project_files')
+    .delete()
+    .eq('id', fileId);
+
+  if (dbError) {
+    console.error(`خطأ في حذف سجل الملف رقم ${fileId}:`, dbError);
+    throw dbError;
   }
 };

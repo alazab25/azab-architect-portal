@@ -280,6 +280,86 @@ export type Database = {
         }
         Relationships: []
       }
+      project_files: {
+        Row: {
+          created_at: string | null
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          category: string | null
+          completed: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          model_url: string | null
+          progress: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          model_url?: string | null
+          progress?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          completed?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          model_url?: string | null
+          progress?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_nat: string
