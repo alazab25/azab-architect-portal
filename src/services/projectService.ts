@@ -1,236 +1,254 @@
 
-import { supabase } from "../integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Project {
-  id: string;
+  id: string | number;
   title: string;
   description?: string;
   location?: string;
   category?: string;
-  progress?: number;
-  completed?: boolean;
+  progress: number;
+  completed: boolean;
   image_url?: string;
   model_url?: string;
+  technical_details?: Array<{ key: string; value: string }>;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface ProjectFile {
   id: string;
-  project_id: string;
   name: string;
   file_path: string;
   file_type: string;
-  file_size?: number;
+  file_size: number;
+  project_id: string;
   created_at?: string;
 }
 
 /**
- * جلب جميع المشاريع
+ * الحصول على قائمة المشاريع
  */
-export const getProjects = async (): Promise<Project[]> => {
+export const getProjects = async () => {
   const { data, error } = await supabase
     .from('projects')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
   if (error) {
-    console.error("Error fetching projects:", error);
+    console.error('Error fetching projects:', error);
     throw error;
   }
-  
-  return data || [];
+
+  return data;
 };
 
 /**
- * جلب مشروع بواسطة المعرف
+ * الحصول على مشروع بواسطة المعرف
  */
-export const getProjectById = async (projectId: string | number): Promise<Project | null> => {
-  // تحويل المعرف إلى سلسلة نصية إذا كان رقمًا
-  const id = String(projectId);
-  
+export const getProjectById = async (id: string) => {
   const { data, error } = await supabase
     .from('projects')
     .select('*')
     .eq('id', id)
     .single();
-    
+
   if (error) {
-    if (error.code === 'PGRST116') {
-      // المشروع غير موجود
-      return null;
-    }
-    console.error("Error fetching project:", error);
+    console.error('Error fetching project:', error);
     throw error;
   }
-  
+
   return data;
 };
 
 /**
  * إنشاء مشروع جديد
  */
-export const createProject = async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> => {
+export const createProject = async (project: Omit<Project, 'id'>) => {
   const { data, error } = await supabase
     .from('projects')
-    .insert(project)
-    .select()
-    .single();
-    
+    .insert([project])
+    .select();
+
   if (error) {
-    console.error("Error creating project:", error);
+    console.error('Error creating project:', error);
     throw error;
   }
-  
-  return data;
+
+  return data[0];
 };
 
 /**
- * تحديث مشروع موجود
+ * تحديث مشروع
  */
-export const updateProject = async (projectId: string | number, project: Partial<Project>): Promise<Project> => {
-  // تحويل المعرف إلى سلسلة نصية إذا كان رقمًا
-  const id = String(projectId);
-  
+export const updateProject = async (id: string, project: Partial<Project>) => {
   const { data, error } = await supabase
     .from('projects')
     .update(project)
     .eq('id', id)
-    .select()
-    .single();
-    
+    .select();
+
   if (error) {
-    console.error("Error updating project:", error);
+    console.error('Error updating project:', error);
     throw error;
   }
-  
-  return data;
+
+  return data[0];
 };
 
 /**
  * حذف مشروع
  */
-export const deleteProject = async (projectId: string | number): Promise<void> => {
-  // تحويل المعرف إلى سلسلة نصية إذا كان رقمًا
-  const id = String(projectId);
-  
+export const deleteProject = async (id: string) => {
+  // حذف ملفات المشروع من التخزين أولاً
+  const { data: files } = await supabase
+    .from('project_files')
+    .select('file_path')
+    .eq('project_id', id);
+
+  if (files && files.length > 0) {
+    for (const file of files) {
+      await supabase
+        .storage
+        .from('project-files')
+        .remove([file.file_path]);
+    }
+  }
+
+  // حذف ملفات المشروع من قاعدة البيانات
+  await supabase
+    .from('project_files')
+    .delete()
+    .eq('project_id', id);
+
+  // حذف المشروع
   const { error } = await supabase
     .from('projects')
     .delete()
     .eq('id', id);
-    
+
   if (error) {
-    console.error("Error deleting project:", error);
+    console.error('Error deleting project:', error);
     throw error;
   }
+
+  return true;
 };
 
 /**
- * جلب ملفات المشروع
+ * الحصول على ملفات المشروع
  */
-export const getProjectFiles = async (projectId: string | number): Promise<ProjectFile[]> => {
-  // تحويل المعرف إلى سلسلة نصية إذا كان رقمًا
-  const id = String(projectId);
-  
+export const getProjectFiles = async (projectId: string) => {
   const { data, error } = await supabase
     .from('project_files')
     .select('*')
-    .eq('project_id', id)
+    .eq('project_id', projectId)
     .order('created_at', { ascending: false });
-    
-  if (error) {
-    console.error("Error fetching project files:", error);
-    throw error;
-  }
-  
-  return data || [];
-};
 
-/**
- * إضافة ملف للمشروع
- */
-export const addProjectFile = async (file: Omit<ProjectFile, 'id' | 'created_at'>): Promise<ProjectFile> => {
-  const { data, error } = await supabase
-    .from('project_files')
-    .insert(file)
-    .select()
-    .single();
-    
   if (error) {
-    console.error("Error adding project file:", error);
+    console.error('Error fetching project files:', error);
     throw error;
   }
-  
+
   return data;
 };
 
 /**
- * حذف ملف المشروع
- */
-export const deleteProjectFile = async (fileId: string): Promise<void> => {
-  const { error } = await supabase
-    .from('project_files')
-    .delete()
-    .eq('id', fileId);
-    
-  if (error) {
-    console.error("Error deleting project file:", error);
-    throw error;
-  }
-};
-
-/**
- * تحميل ملف إلى Supabase Storage
+ * رفع ملف للمشروع
  */
 export const uploadProjectFile = async (
-  projectId: string | number,
-  file: File
-): Promise<{ path: string; size: number }> => {
-  // تحويل المعرف إلى سلسلة نصية إذا كان رقمًا
-  const id = String(projectId);
-  
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-  const filePath = `${id}/${fileName}`;
-  
-  const { data, error } = await supabase
-    .storage
-    .from('project-files')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true
-    });
+  projectId: string,
+  file: File,
+  onProgress?: (progress: number) => void
+) => {
+  try {
+    const timestamp = new Date().getTime();
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${timestamp}-${file.name}`;
+    const filePath = `files/${projectId}/${fileName}`;
     
-  if (error) {
-    console.error("Error uploading file to storage:", error);
+    // رفع الملف إلى التخزين
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('project-files')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+      
+    if (uploadError) {
+      throw uploadError;
+    }
+    
+    // الحصول على الرابط العام للملف
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('project-files')
+      .getPublicUrl(filePath);
+      
+    // إضافة معلومات الملف إلى جدول project_files
+    const fileInfo = {
+      id: uuidv4(),
+      project_id: projectId,
+      name: file.name,
+      file_path: filePath,
+      file_type: file.type,
+      file_size: file.size
+    };
+    
+    const { data, error } = await supabase
+      .from('project_files')
+      .insert([fileInfo])
+      .select();
+      
+    if (error) {
+      throw error;
+    }
+    
+    return { ...data[0], publicUrl };
+  } catch (error) {
+    console.error('Error uploading file:', error);
     throw error;
   }
-  
-  return {
-    path: data.path,
-    size: file.size
-  };
 };
 
 /**
- * حذف ملف من Supabase Storage
+ * حذف ملف من المشروع
  */
-export const deleteStorageFile = async (filePath: string): Promise<void> => {
-  const { error } = await supabase
-    .storage
-    .from('project-files')
-    .remove([filePath]);
+export const deleteProjectFile = async (fileId: string, filePath: string) => {
+  try {
+    // حذف الملف من التخزين
+    const { error: storageError } = await supabase
+      .storage
+      .from('project-files')
+      .remove([filePath]);
+      
+    if (storageError) {
+      throw storageError;
+    }
     
-  if (error) {
-    console.error("Error deleting file from storage:", error);
+    // حذف معلومات الملف من قاعدة البيانات
+    const { error } = await supabase
+      .from('project_files')
+      .delete()
+      .eq('id', fileId);
+      
+    if (error) {
+      throw error;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting file:', error);
     throw error;
   }
 };
 
 /**
- * الحصول على URL عام للملف
+ * الحصول على رابط التنزيل للملف
  */
-export const getPublicFileUrl = (filePath: string): string => {
+export const getFileDownloadUrl = async (filePath: string) => {
   const { data } = supabase
     .storage
     .from('project-files')

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -15,6 +14,7 @@ import ProjectCard from '../components/project/ProjectCard';
 import ProjectFilters from '../components/project/ProjectFilters';
 import EmptyProjectPlaceholder from '../components/project/EmptyProjectPlaceholder';
 import ProjectForm from '../components/project/ProjectForm';
+import { supabase } from "@/integrations/supabase/client";
 
 const ProjectManagementPage = () => {
   // Set the page title
@@ -111,13 +111,91 @@ const ProjectManagementPage = () => {
   const [filteredProjects, setFilteredProjects] = useState(projects);
   const { toast } = useToast();
 
+  // Load projects from Supabase
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.length > 0) {
+          // Transform data to match our project format
+          const formattedProjects = data.map(project => ({
+            id: project.id,
+            title: project.title,
+            location: project.location || '',
+            category: project.category ? `الفئة: ${getCategoryName(project.category)}` : '',
+            description: project.description || '',
+            progress: project.progress || 0,
+            completed: project.completed || false,
+            image: project.image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+          }));
+          
+          setProjects(formattedProjects);
+          setFilteredProjects(formattedProjects);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        toast({
+          title: "حدث خطأ أثناء تحميل المشاريع",
+          description: "تعذر تحميل المشاريع، يرجى المحاولة مرة أخرى",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchProjects();
+  }, [toast]);
+
+  // Function to get category name
+  const getCategoryName = (category: string) => {
+    switch(category) {
+      case 'retail':
+        return 'المحلات التجارية';
+      case 'commercial':
+        return 'المباني التجارية';
+      case 'office':
+        return 'المكاتبية';
+      case 'residential':
+        return 'المباني السكنية';
+      default:
+        return category;
+    }
+  };
+
   // Handler functions
-  const handleDeleteProject = (id: number) => {
-    setProjects(projects.filter(project => project.id !== id));
-    toast({
-      title: "تم حذف المشروع بنجاح",
-      description: "تم حذف المشروع من قائمة المشاريع",
-    });
+  const handleDeleteProject = async (id: number | string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw error;
+      }
+
+      setProjects(projects.filter(project => project.id !== id));
+      setFilteredProjects(filteredProjects.filter(project => project.id !== id));
+      
+      toast({
+        title: "تم حذف المشروع بنجاح",
+        description: "تم حذف المشروع من قائمة المشاريع",
+      });
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast({
+        title: "حدث خطأ أثناء حذف المشروع",
+        description: "تعذر حذف ال��شروع، يرجى المحاولة مرة أخرى",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFilterChange = (filters: any) => {
@@ -160,19 +238,130 @@ const ProjectManagementPage = () => {
     setFilteredProjects(filtered);
   };
 
-  const handleAddProject = (projectData: any) => {
-    const newProject = {
-      id: projects.length + 1,
-      ...projectData,
-    };
-    
-    setProjects([newProject, ...projects]);
-    setShowNewProjectForm(false);
-    
-    toast({
-      title: "تم إضافة المشروع بنجاح",
-      description: `تم إضافة مشروع "${projectData.title}" بنجاح`,
-    });
+  const handleAddProject = async (projectData: any) => {
+    try {
+      // Upload image to Supabase Storage if it's a base64 image
+      let imageUrl = projectData.image;
+      
+      if (projectData.image && projectData.image.startsWith('data:image')) {
+        const timestamp = new Date().getTime();
+        const fileName = `project-${timestamp}.jpg`;
+        
+        // Convert base64 to file
+        const base64Data = projectData.image.split(',')[1];
+        const blob = await fetch(`data:image/jpeg;base64,${base64Data}`).then(res => res.blob());
+        
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from('project-files')
+          .upload(`images/${fileName}`, blob, { contentType: 'image/jpeg' });
+        
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('project-files')
+          .getPublicUrl(`images/${fileName}`);
+          
+        imageUrl = publicUrl;
+      }
+
+      // Format category for database
+      let categoryValue = projectData.category;
+      
+      // Add project to Supabase
+      const { data, error } = await supabase
+        .from('projects')
+        .insert([
+          {
+            title: projectData.title,
+            description: projectData.description,
+            location: projectData.location,
+            category: categoryValue,
+            progress: parseInt(projectData.progress || '0'),
+            completed: parseInt(projectData.progress || '0') === 100,
+            image_url: imageUrl,
+            model_url: projectData.model_url || null
+          }
+        ])
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      // Format the newly created project
+      const newProject = {
+        id: data[0].id,
+        title: data[0].title,
+        location: data[0].location || '',
+        category: data[0].category ? `الفئة: ${getCategoryName(data[0].category)}` : '',
+        description: data[0].description || '',
+        progress: data[0].progress || 0,
+        completed: data[0].completed || false,
+        image: data[0].image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+      };
+      
+      // Upload project files if any
+      if (projectData.files && projectData.files.length > 0) {
+        for (const fileItem of projectData.files) {
+          if (fileItem.file) {
+            const timestamp = new Date().getTime();
+            const filePath = `files/${data[0].id}/${timestamp}-${fileItem.name}`;
+            
+            // Upload file to Supabase Storage
+            const { error: fileUploadError } = await supabase
+              .storage
+              .from('project-files')
+              .upload(filePath, fileItem.file);
+              
+            if (fileUploadError) {
+              console.error('Error uploading file:', fileUploadError);
+              continue;
+            }
+            
+            // Get public URL
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('project-files')
+              .getPublicUrl(filePath);
+              
+            // Add file information to project_files table
+            await supabase
+              .from('project_files')
+              .insert([
+                {
+                  project_id: data[0].id,
+                  name: fileItem.name,
+                  file_path: filePath,
+                  file_type: fileItem.type,
+                  file_size: fileItem.file.size
+                }
+              ]);
+          }
+        }
+      }
+      
+      setProjects([newProject, ...projects]);
+      setFilteredProjects([newProject, ...filteredProjects]);
+      setShowNewProjectForm(false);
+      
+      toast({
+        title: "تم إضافة المشروع بنجاح",
+        description: `تم إضافة مشروع "${projectData.title}" بنجاح`,
+      });
+    } catch (error) {
+      console.error('Error adding project:', error);
+      toast({
+        title: "حدث خطأ أثناء إضافة المشروع",
+        description: "تعذر إضافة المشروع، يرجى المحاولة مرة أخرى",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
