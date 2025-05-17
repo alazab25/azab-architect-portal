@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Button } from "@/components/ui/button";
-import { Store, Building, Package, Truck, Tool, CheckCircle } from 'lucide-react';
+import { Store, Building, Package, Truck, Wrench, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,7 +60,7 @@ const RetailServicesPage = () => {
                 description: "تصميم وتصنيع وتركيب الرفوف والديكورات الداخلية للمحلات بما يتناسب مع طبيعة المنتجات"
               },
               {
-                icon: Tool,
+                icon: Wrench,
                 title: "أعمال الصيانة الدورية",
                 description: "برامج صيانة دورية للمحلات والمولات التجارية لضمان استمرارية العمل وتجنب المشاكل الفنية"
               },
