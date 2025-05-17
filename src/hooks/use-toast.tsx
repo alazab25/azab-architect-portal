@@ -85,7 +85,10 @@ export const useToast = () => {
   if (context === undefined) {
     throw new Error("useToast must be used within a ToastProvider")
   }
-  return context
+  return {
+    ...context,
+    toast: (props: Omit<ToasterToast, "id">) => context.addToast(props),
+  }
 }
 
 type Toast = Omit<ToasterToast, "id">

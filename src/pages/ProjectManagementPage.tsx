@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import ProjectCard from '../components/project/ProjectCard';
 import ProjectFilters from '../components/project/ProjectFilters';
 import EmptyProjectPlaceholder from '../components/project/EmptyProjectPlaceholder';
