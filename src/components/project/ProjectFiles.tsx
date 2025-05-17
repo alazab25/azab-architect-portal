@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { File, FileText, FileImage, Download, Eye, Upload, Trash2, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -48,7 +47,7 @@ const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
     try {
       // تحويل projectId إلى UUID إذا كان رقمًا
       const uuid = typeof projectId === 'number' 
-        ? await getProjectUUID(projectId) 
+        ? await getProjectUUID(String(projectId)) // Convert to string here
         : String(projectId);
         
       // إذا لم نجد UUID صالح، نستخدم بيانات وهمية للعرض التجريبي
@@ -96,7 +95,7 @@ const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
   };
   
   // تحويل رقم المشروع إلى UUID من جدول المشاريع
-  const getProjectUUID = async (numericId: number): Promise<string | null> => {
+  const getProjectUUID = async (numericId: string): Promise<string | null> => {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -179,7 +178,7 @@ const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
     try {
       // تحويل projectId إلى UUID إذا كان رقمًا
       const uuid = typeof projectId === 'number' 
-        ? await getProjectUUID(projectId) 
+        ? await getProjectUUID(String(projectId)) // Convert to string here
         : String(projectId);
       
       if (!uuid) {
@@ -372,16 +371,13 @@ const ProjectFiles = ({ projectId }: ProjectFilesProps) => {
       }
       
       // في حالة ملف من Supabase Storage
-      const { data: { publicUrl }, error } = supabase
+      // Fix: Use the correct structure for getPublicUrl response
+      const { data } = supabase
         .storage
         .from('project-files')
         .getPublicUrl(file.file_path);
         
-      if (error) {
-        throw error;
-      }
-      
-      window.open(publicUrl, '_blank');
+      window.open(data.publicUrl, '_blank');
     } catch (error) {
       console.error("خطأ في معاينة الملف:", error);
       toast({
