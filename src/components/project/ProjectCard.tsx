@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Eye, Pencil, Trash2, Store, CheckCircle, AlertTriangle, Clock
 } from 'lucide-react';
@@ -10,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from 'react-router-dom';
 
 export interface ProjectCardProps {
   id: number;
@@ -85,8 +85,7 @@ const ProjectCard = ({
                 variant="default" 
                 size="sm"
                 className="bg-white text-primary hover:bg-gray-100"
-                as={Link}
-                to={`/projects/${id}`}
+                onClick={() => window.location.href = `/projects/${id}`}
               >
                 <Eye size={16} className="mr-1" /> عرض التفاصيل
               </Button>
@@ -135,11 +134,11 @@ const ProjectCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white">
-                <DropdownMenuItem as={Link} to={`/projects/${id}`}>
-                  <span>عرض التفاصيل</span>
+                <DropdownMenuItem>
+                  <Link to={`/projects/${id}`} className="w-full flex">عرض التفاصيل</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem as={Link} to={`/projects/${id}/edit`}>
-                  <span>تحرير المشروع</span>
+                <DropdownMenuItem>
+                  <Link to={`/projects/${id}/edit`} className="w-full flex">تحرير المشروع</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <span>تحديث الحالة</span>
@@ -150,8 +149,7 @@ const ProjectCard = ({
               variant="outline" 
               size="sm"
               className="flex items-center"
-              as={Link}
-              to={`/projects/${id}/edit`}
+              onClick={() => window.location.href = `/projects/${id}/edit`}
             >
               <Pencil size={16} />
             </Button>

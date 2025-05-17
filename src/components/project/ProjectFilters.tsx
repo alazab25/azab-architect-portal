@@ -105,7 +105,7 @@ const ProjectFilters = ({
         
         <div className="flex gap-1 border border-gray-300 rounded-lg p-1">
           <Button 
-            variant={currentView === 'grid' ? 'subtle' : 'ghost'} 
+            variant={currentView === 'grid' ? 'secondary' : 'ghost'} 
             size="sm" 
             className={`px-2 ${currentView === 'grid' ? 'bg-gray-100' : ''}`}
             onClick={() => onViewChange('grid')}
@@ -113,7 +113,7 @@ const ProjectFilters = ({
             <Grid2X2 size={16} />
           </Button>
           <Button 
-            variant={currentView === 'list' ? 'subtle' : 'ghost'} 
+            variant={currentView === 'list' ? 'secondary' : 'ghost'} 
             size="sm" 
             className={`px-2 ${currentView === 'list' ? 'bg-gray-100' : ''}`}
             onClick={() => onViewChange('list')}
