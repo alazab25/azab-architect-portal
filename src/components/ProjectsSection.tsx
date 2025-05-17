@@ -2,28 +2,31 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Smartphone, Code, Camera, TrendingUp } from 'lucide-react';
+import { LayoutGrid, Smartphone, Briefcase, Building, Clock } from 'lucide-react';
 
 // Category filters with icons
 const projectCategories = [
   { id: 'all', name: 'الكل', icon: LayoutGrid },
-  { id: 'residential', name: 'سكني', icon: Code },
+  { id: 'residential', name: 'سكني', icon: Building },
   { id: 'commercial', name: 'تجاري', icon: Smartphone },
-  { id: 'industrial', name: 'صناعي', icon: TrendingUp },
+  { id: 'industrial', name: 'صناعي', icon: Briefcase },
 ];
 
+// Updated project data with more Abu Ouf stores
 const projects = [
   {
     id: 1,
-    title: 'فيلا سكنية فاخرة',
-    category: 'residential',
-    image: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    title: 'محلات أبو عوف',
+    location: 'مول أركان - القاهرة',
+    category: 'commercial',
+    image: 'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
   },
   {
     id: 2,
-    title: 'مجمع تجاري متكامل',
+    title: 'أبو عوف',
+    location: 'نادي وادي دجلة - المعادي',
     category: 'commercial',
-    image: 'https://images.unsplash.com/photo-1486718448742-163732cd1544?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    image: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
   },
   {
     id: 3,
@@ -33,15 +36,17 @@ const projects = [
   },
   {
     id: 4,
-    title: 'مبنى إداري متميز',
+    title: 'أبو عوف',
+    location: 'مول مصر - 6 أكتوبر',
     category: 'commercial',
-    image: 'https://images.unsplash.com/photo-1460574283810-2aab119d8511?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    image: 'https://images.unsplash.com/photo-1604719312566-8912e9c8a213?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
   },
   {
     id: 5,
-    title: 'فيلا مودرن',
-    category: 'residential',
-    image: 'https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+    title: 'أبو عوف',
+    location: 'سيتي ستارز - مدينة نصر',
+    category: 'commercial',
+    image: 'https://images.unsplash.com/photo-1604669699786-58955622e53a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
   },
   {
     id: 6,
@@ -141,9 +146,21 @@ const ProjectsSection = () => {
                     عرض التفاصيل
                   </button>
                 </div>
+                {project.title.includes('أبو عوف') && (
+                  <div className="absolute top-3 right-3 bg-white text-primary text-sm px-2 py-1 rounded-full flex items-center gap-1">
+                    <Smartphone size={14} />
+                    <span className="text-xs">محل تجزئة</span>
+                  </div>
+                )}
               </div>
               <div className="p-4">
                 <h3 className="text-xl font-bold text-primary">{project.title}</h3>
+                {project.location && (
+                  <div className="flex items-center gap-1 text-sm text-secondary my-1">
+                    <Clock size={14} />
+                    <p>{project.location}</p>
+                  </div>
+                )}
                 <p className="text-sm text-secondary capitalize">
                   {projectCategories.find(c => c.id === project.category)?.name}
                 </p>

@@ -3,19 +3,29 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Eye, Trash2, Store } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
+import ProjectCard from '../components/project/ProjectCard';
+import ProjectFilters from '../components/project/ProjectFilters';
+import EmptyProjectPlaceholder from '../components/project/EmptyProjectPlaceholder';
+import ProjectForm from '../components/project/ProjectForm';
 
 const ProjectManagementPage = () => {
+  // Set the page title
   useEffect(() => {
     document.title = 'إدارة المشاريع | شركة العزب للإنشاءات';
   }, []);
 
+  // State
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [showNewProjectForm, setShowNewProjectForm] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string>('all');
   const [projects, setProjects] = useState([
     {
       id: 1,
@@ -98,17 +108,89 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
   ]);
+  const [filteredProjects, setFilteredProjects] = useState(projects);
+  const { toast } = useToast();
 
+  // Handler functions
   const handleDeleteProject = (id: number) => {
     setProjects(projects.filter(project => project.id !== id));
+    toast({
+      title: "تم حذف المشروع بنجاح",
+      description: "تم حذف المشروع من قائمة المشاريع",
+    });
+  };
+
+  const handleFilterChange = (filters: any) => {
+    let filtered = [...projects];
+    
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filtered = filtered.filter(project => 
+        project.title.toLowerCase().includes(searchTerm) || 
+        project.location.toLowerCase().includes(searchTerm) ||
+        project.description.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    if (filters.status === 'completed') {
+      filtered = filtered.filter(project => project.completed);
+    } else if (filters.status === 'in-progress') {
+      filtered = filtered.filter(project => !project.completed);
+    }
+    
+    if (filters.category === 'retail') {
+      filtered = filtered.filter(project => project.category.includes('المحلات التجارية'));
+    } else if (filters.category === 'commercial') {
+      filtered = filtered.filter(project => project.category.includes('المباني التجارية'));
+    } else if (filters.category === 'office') {
+      filtered = filtered.filter(project => project.category.includes('المكاتبية'));
+    }
+    
+    if (filters.sort === 'asc') {
+      filtered = filtered.sort((a, b) => a.id - b.id);
+    } else if (filters.sort === 'desc') {
+      filtered = filtered.sort((a, b) => b.id - a.id);
+    } else if (filters.sort === 'progress-high') {
+      filtered = filtered.sort((a, b) => b.progress - a.progress);
+    } else if (filters.sort === 'progress-low') {
+      filtered = filtered.sort((a, b) => a.progress - b.progress);
+    }
+    
+    setActiveFilter(filters.status || activeFilter);
+    setFilteredProjects(filtered);
+  };
+
+  const handleAddProject = (projectData: any) => {
+    const newProject = {
+      id: projects.length + 1,
+      ...projectData,
+    };
+    
+    setProjects([newProject, ...projects]);
+    setShowNewProjectForm(false);
+    
+    toast({
+      title: "تم إضافة المشروع بنجاح",
+      description: `تم إضافة مشروع "${projectData.title}" بنجاح`,
+    });
   };
 
   return (
     <Layout>
       {/* Hero Section */}
       <div className="relative bg-primary pt-28 pb-16 px-4">
+        <div className="absolute inset-0 opacity-20">
+          <img 
+            src="https://images.unsplash.com/photo-1503387837-b154d5074bd2?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80" 
+            alt="Projects Background" 
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div className="container mx-auto relative z-10 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">إدارة المشاريع</h1>
+          <p className="text-white/80 max-w-2xl mx-auto">
+            إدارة وتنظيم جميع مشاريع الشركة ومتابعة سير العمل
+          </p>
         </div>
       </div>
 
@@ -116,141 +198,120 @@ const ProjectManagementPage = () => {
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-primary">المشاريع الحديثة</h2>
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+              <h2 className="text-2xl font-bold text-primary">المشاريع الحديثة</h2>
+              <div className="flex gap-2 overflow-x-auto py-1 scrollbar-hide">
+                <Button
+                  variant={activeFilter === 'all' ? "default" : "outline"}
+                  size="sm"
+                  className={activeFilter === 'all' ? "bg-primary" : ""}
+                  onClick={() => handleFilterChange({ status: 'all' })}
+                >
+                  الكل
+                </Button>
+                <Button
+                  variant={activeFilter === 'completed' ? "default" : "outline"}
+                  size="sm"
+                  className={activeFilter === 'completed' ? "bg-green-600" : ""}
+                  onClick={() => handleFilterChange({ status: 'completed' })}
+                >
+                  مكتمل
+                </Button>
+                <Button
+                  variant={activeFilter === 'in-progress' ? "default" : "outline"}
+                  size="sm"
+                  className={activeFilter === 'in-progress' ? "bg-blue-600" : ""}
+                  onClick={() => handleFilterChange({ status: 'in-progress' })}
+                >
+                  قيد التنفيذ
+                </Button>
+              </div>
+            </div>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="default" className="flex items-center gap-2 bg-primary hover:bg-primary-light">
+                <Button variant="default" className="flex items-center gap-2 bg-primary hover:bg-blue-700">
                   <Plus size={18} />
                   إضافة مشروع جديد
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white">
-                <DropdownMenuItem>
-                  <span>مشروع سكني</span>
+                <DropdownMenuItem onClick={() => setShowNewProjectForm(true)}>
+                  <span>مشروع محل تجاري</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>مشروع تجاري</span>
+                <DropdownMenuItem onClick={() => setShowNewProjectForm(true)}>
+                  <span>مشروع مبنى تجاري</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>مشروع صناعي</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowNewProjectForm(true)}>
                   <span>مشروع مكاتب</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowNewProjectForm(true)}>
+                  <span>مشروع سكني</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map(project => (
-              <div key={project.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="relative h-48">
-                  <img 
-                    src={project.image} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover" 
-                  />
-                  {project.completed ? (
-                    <div className="absolute top-3 left-3 bg-green-500 text-white text-sm px-3 py-1 rounded-full">
-                      مكتمل
-                    </div>
-                  ) : (
-                    <div className="absolute top-3 left-3 bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
-                      جديد
-                    </div>
-                  )}
-                  {project.title.includes('أبو عوف') && (
-                    <div className="absolute top-3 right-3 bg-white text-primary text-sm px-2 py-1 rounded-full flex items-center gap-1">
-                      <Store size={14} />
-                      <span className="text-xs">متجر تجزئة</span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-xl text-primary">{project.location}</h3>
-                    <span className="text-gray-600 text-sm">{project.title}</span>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-2">{project.category}</p>
-                  <p className="text-sm text-gray-800 mb-4 line-clamp-2">{project.description}</p>
-                  
-                  {project.progress > 0 && (
-                    <div className="mt-4 mb-2">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>نسبة الإنجاز</span>
-                        <span>{project.progress}%</span>
-                      </div>
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${project.progress === 100 ? 'bg-green-500' : 'bg-teal-500'}`}
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="space-x-2 flex">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="flex items-center"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-white">
-                          <DropdownMenuItem>
-                            <span>عرض التفاصيل</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <span>تحرير المشروع</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <span>تحديث الحالة</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex items-center"
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        onClick={() => handleDeleteProject(project.id)}
-                        className="flex items-center"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+          {/* Project Filters */}
+          <ProjectFilters 
+            onFilterChange={handleFilterChange}
+            onViewChange={setView}
+            currentView={view}
+          />
+
+          {/* New Project Form */}
+          {showNewProjectForm && (
+            <div className="mb-8 bg-white p-6 rounded-lg shadow-sm border">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-primary">إضافة مشروع جديد</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowNewProjectForm(false)}
+                >
+                  إلغاء
+                </Button>
               </div>
+              <ProjectForm onSubmit={handleAddProject} />
+            </div>
+          )}
+
+          {/* Projects Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map(project => (
+              <ProjectCard
+                key={project.id}
+                {...project}
+                onDelete={handleDeleteProject}
+              />
             ))}
           </div>
 
           {/* Empty project placeholders */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {[1, 2, 3].map((_, index) => (
-              <div 
-                key={`empty-${index}`} 
-                className="bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center h-64"
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-medium text-gray-600 mb-4">لا توجد مشاريع مطابقة للبحث</h3>
+              <p className="text-gray-500 mb-8">جرب تغيير معايير البحث أو أضف مشروعاً جديداً</p>
+              <Button 
+                onClick={() => setShowNewProjectForm(true)}
+                className="bg-primary hover:bg-blue-700"
               >
-                <Button variant="ghost" className="text-gray-500">
-                  <Plus className="mr-2 h-5 w-5" />
-                  إضافة مشروع جديد
-                </Button>
-              </div>
-            ))}
-          </div>
+                <Plus className="mr-2 h-4 w-4" /> إضافة مشروع جديد
+              </Button>
+            </div>
+          )}
+
+          {filteredProjects.length > 0 && filteredProjects.length < 9 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {[...Array(Math.min(3, 9 - filteredProjects.length))].map((_, index) => (
+                <EmptyProjectPlaceholder
+                  key={`empty-${index}`}
+                  index={index}
+                  onClick={() => setShowNewProjectForm(true)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </Layout>
