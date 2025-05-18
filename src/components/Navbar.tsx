@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import UserMenu from '@/components/UserMenu';
 import {
   Drawer,
   DrawerClose,
@@ -55,19 +56,25 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={`hover:text-accent font-medium transition-colors text-base ${
-                scrolled ? 'text-primary' : 'text-white'
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+        <div className="hidden md:flex items-center gap-8">
+          <nav className="flex gap-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`hover:text-accent font-medium transition-colors text-base ${
+                  scrolled ? 'text-primary' : 'text-white'
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+          
+          <div className={scrolled ? '' : 'text-white'}>
+            <UserMenu />
+          </div>
+        </div>
 
         {/* Mobile Menu Button */}
         <button 
@@ -98,6 +105,11 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
+              
+              <div className="pt-3">
+                <UserMenu />
+              </div>
+              
               <Drawer>
                 <DrawerTrigger asChild>
                   <Button className="bg-primary text-white hover:bg-primary-light mt-4 w-full py-6 text-lg" onClick={() => setIsOpen(false)}>
