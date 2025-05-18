@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,7 +22,7 @@ import {
 } from 'lucide-react';
 
 interface ProjectCardProps {
-  id: string | number;
+  id: string;
   title: string;
   location: string;
   category: string;
@@ -31,7 +30,7 @@ interface ProjectCardProps {
   progress: number;
   completed: boolean;
   image: string;
-  onDelete: (id: string | number) => void;
+  onDelete: (id: string) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({

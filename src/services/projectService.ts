@@ -1,6 +1,5 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { v4 as uuidv4 } from 'uuid';
 
 // Define Project interface
 export interface Project {
@@ -67,10 +66,15 @@ export const fetchProjectById = async (id: string) => {
 /**
  * Create a new project
  */
-export const createProject = async (project: Partial<Project>) => {
+export const createProject = async (project: Omit<Project, 'id'>) => {
+  // Make sure the project has a title to satisfy Supabase constraints
+  if (!project.title) {
+    throw new Error("Project title is required");
+  }
+  
   const { data, error } = await supabase
     .from('projects')
-    .insert([project])
+    .insert(project)
     .select();
     
   if (error) {
@@ -139,7 +143,7 @@ export const fetchProjectFiles = async (projectId: string) => {
 export const uploadProjectFile = async (projectId: string, file: File) => {
   const timestamp = new Date().getTime();
   const fileExtension = file.name.split('.').pop();
-  const fileName = `${uuidv4()}-${timestamp}.${fileExtension}`;
+  const fileName = `${timestamp}-${file.name}`;
   const filePath = `files/${projectId}/${fileName}`;
   
   // Upload the file to storage
