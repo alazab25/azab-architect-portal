@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, Store, Building, Home, Upload, Plus, FileText, Link as LinkIcon, Save } from 'lucide-react';
@@ -64,12 +63,14 @@ interface ProjectFormProps {
   };
   onSubmit: (data: any) => void;
   isEditing?: boolean;
+  onCancel?: () => void; // Added onCancel prop to handle form cancellation
 }
 
 const ProjectForm = ({ 
   initialData, 
   onSubmit, 
-  isEditing = false 
+  isEditing = false,
+  onCancel // New prop for handling cancellation
 }: ProjectFormProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(initialData?.image || null);
   const [activeTab, setActiveTab] = useState('general');
@@ -115,11 +116,9 @@ const ProjectForm = ({
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // إضافة الملفات المحددة إلى القائمة
     const newFiles: ProjectFile[] = [];
     
     Array.from(files).forEach(file => {
-      // تحديد نوع الملف
       let fileType = 'other';
       if (file.type.includes('image')) {
         fileType = 'image';
@@ -129,7 +128,6 @@ const ProjectForm = ({
         fileType = 'excel';
       }
       
-      // تحويل حجم الملف إلى صيغة مقروءة
       const fileSize = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
       
       newFiles.push({
@@ -193,7 +191,6 @@ const ProjectForm = ({
     };
     
     try {
-      // استدعاء دالة الاستجابة
       await onSubmit(finalData);
       
       toast({
@@ -584,15 +581,13 @@ const ProjectForm = ({
                     )}
                   />
                 </div>
-                
-                {/* يمكن إضافة المزيد من الإعدادات المتقدمة هنا */}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
 
         <div className="mt-6 flex justify-between">
-          <Button type="button" variant="outline" onClick={() => setShowNewProjectForm && setShowNewProjectForm(false)}>
+          <Button type="button" variant="outline" onClick={onCancel}>
             إلغاء
           </Button>
           <Button type="submit" disabled={isUploading} className="flex items-center gap-2">

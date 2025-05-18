@@ -16,6 +16,20 @@ import EmptyProjectPlaceholder from '../components/project/EmptyProjectPlacehold
 import ProjectForm from '../components/project/ProjectForm';
 import { supabase } from "@/integrations/supabase/client";
 
+// Define a consistent project type to avoid mismatches
+interface Project {
+  id: string | number;
+  title: string;
+  location: string;
+  category: string;
+  description: string;
+  progress: number;
+  completed: boolean;
+  image: string;
+  model_url?: string;
+  technical_details?: Array<{ key: string; value: string }>;
+}
+
 const ProjectManagementPage = () => {
   // Set the page title
   useEffect(() => {
@@ -26,9 +40,9 @@ const ProjectManagementPage = () => {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [showNewProjectForm, setShowNewProjectForm] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [projects, setProjects] = useState([
+  const [projects, setProjects] = useState<Project[]>([
     {
-      id: 1,
+      id: "1",
       title: 'محلات أبو عوف',
       location: 'مول أركان - القاهرة',
       category: 'الفئة: المحلات التجارية',
@@ -38,7 +52,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1604044923071-5210adda0efd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 2,
+      id: "2",
       title: 'أبو عوف',
       location: 'نادي وادي دجلة - المعادي',
       category: 'الفئة: المحلات التجارية',
@@ -48,7 +62,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 3,
+      id: "3",
       title: 'المنصورة',
       location: 'المنصورة',
       category: 'الفئة: المباني التجارية',
@@ -58,7 +72,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 4,
+      id: "4",
       title: 'التجمع الخامس',
       location: 'التجمع الخامس',
       category: 'الفئة: المباني التجارية',
@@ -68,7 +82,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 5,
+      id: "5",
       title: 'أبو عوف',
       location: 'مول مصر - 6 أكتوبر',
       category: 'الفئة: المحلات التجارية',
@@ -78,7 +92,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1604719312566-8912e9c8a213?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 6,
+      id: "6",
       title: 'أرشيف القطامية',
       location: 'القطامية',
       category: 'الفئة: المكاتبية',
@@ -88,7 +102,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1460574283810-2aab119d8511?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 7,
+      id: "7",
       title: 'أبو عوف',
       location: 'سيتي ستارز - مدينة نصر',
       category: 'الفئة: المحلات التجارية',
@@ -98,7 +112,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1604669699786-58955622e53a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
     {
-      id: 8,
+      id: "8",
       title: 'فرع طنطا الاستاد',
       location: 'طنطا - منطقة الاستاد',
       category: 'الفئة: المباني التجارية',
@@ -108,7 +122,7 @@ const ProjectManagementPage = () => {
       image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
     },
   ]);
-  const [filteredProjects, setFilteredProjects] = useState(projects);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>(projects);
   const { toast } = useToast();
 
   // Load projects from Supabase
@@ -126,7 +140,7 @@ const ProjectManagementPage = () => {
 
         if (data && data.length > 0) {
           // Transform data to match our project format
-          const formattedProjects = data.map(project => ({
+          const formattedProjects: Project[] = data.map(project => ({
             id: project.id,
             title: project.title,
             location: project.location || '',
@@ -170,12 +184,12 @@ const ProjectManagementPage = () => {
   };
 
   // Handler functions
-  const handleDeleteProject = async (id: number | string) => {
+  const handleDeleteProject = async (id: string | number) => {
     try {
       const { error } = await supabase
         .from('projects')
         .delete()
-        .eq('id', id);
+        .eq('id', id.toString());
 
       if (error) {
         throw error;
@@ -225,9 +239,17 @@ const ProjectManagementPage = () => {
     }
     
     if (filters.sort === 'asc') {
-      filtered = filtered.sort((a, b) => a.id - b.id);
+      filtered.sort((a, b) => {
+        const idA = typeof a.id === 'number' ? a.id : parseInt(a.id);
+        const idB = typeof b.id === 'number' ? b.id : parseInt(b.id);
+        return idA - idB;
+      });
     } else if (filters.sort === 'desc') {
-      filtered = filtered.sort((a, b) => b.id - a.id);
+      filtered.sort((a, b) => {
+        const idA = typeof a.id === 'number' ? a.id : parseInt(a.id);
+        const idB = typeof b.id === 'number' ? b.id : parseInt(b.id);
+        return idB - idA;
+      });
     } else if (filters.sort === 'progress-high') {
       filtered = filtered.sort((a, b) => b.progress - a.progress);
     } else if (filters.sort === 'progress-low') {
@@ -295,7 +317,7 @@ const ProjectManagementPage = () => {
       }
 
       // Format the newly created project
-      const newProject = {
+      const newProject: Project = {
         id: data[0].id,
         title: data[0].title,
         location: data[0].location || '',
@@ -344,6 +366,13 @@ const ProjectManagementPage = () => {
               ]);
           }
         }
+      }
+      
+      // Add technical details if any
+      if (projectData.technical_details && projectData.technical_details.length > 0) {
+        // You might want to add these to a separate table or as JSON in the projects table
+        console.log('Technical details:', projectData.technical_details);
+        // This would be implemented based on your database schema
       }
       
       setProjects([newProject, ...projects]);
@@ -461,7 +490,10 @@ const ProjectManagementPage = () => {
                   إلغاء
                 </Button>
               </div>
-              <ProjectForm onSubmit={handleAddProject} />
+              <ProjectForm 
+                onSubmit={handleAddProject} 
+                onCancel={() => setShowNewProjectForm(false)}
+              />
             </div>
           )}
 

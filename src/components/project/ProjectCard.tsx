@@ -1,19 +1,29 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Eye, Pencil, Trash2, Store, CheckCircle, AlertTriangle, Clock
-} from 'lucide-react';
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import {
+  MoreVertical,
+  Pencil,
+  Trash,
+  ExternalLink,
+  Eye,
+  FileText,
+  Image,
+} from 'lucide-react';
 
-export interface ProjectCardProps {
-  id: number;
+interface ProjectCardProps {
+  id: string | number;
   title: string;
   location: string;
   category: string;
@@ -21,150 +31,133 @@ export interface ProjectCardProps {
   progress: number;
   completed: boolean;
   image: string;
-  onDelete: (id: number) => void;
+  onDelete: (id: string | number) => void;
 }
 
-const ProjectCard = ({ 
-  id, 
-  title, 
-  location, 
-  category, 
-  description, 
-  progress, 
-  completed, 
+const ProjectCard: React.FC<ProjectCardProps> = ({
+  id,
+  title,
+  location,
+  category,
+  description,
+  progress,
+  completed,
   image,
   onDelete
-}: ProjectCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  const getProgressColorClass = () => {
-    if (progress === 100) return 'bg-green-500';
-    if (progress > 70) return 'bg-teal-500';
-    if (progress > 30) return 'bg-blue-500';
-    return 'bg-amber-500';
-  };
-
-  const getStatusIcon = () => {
-    if (completed) return <CheckCircle size={14} className="text-green-500" />;
-    if (progress < 20) return <Clock size={14} className="text-amber-500" />;
-    return <AlertTriangle size={14} className="text-blue-500" />;
+}) => {
+  // Get category color
+  const getCategoryColor = () => {
+    if (category.includes('المحلات التجارية')) return 'bg-blue-500';
+    if (category.includes('المباني التجارية')) return 'bg-green-500';
+    if (category.includes('المكاتبية')) return 'bg-purple-500';
+    if (category.includes('المباني السكنية')) return 'bg-orange-500';
+    return 'bg-gray-500';
   };
 
   return (
-    <div 
-      className="bg-white rounded-lg shadow-sm overflow-hidden transition-all hover:shadow-md"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="relative h-48">
+    <Card className="overflow-hidden transition-all hover:shadow-lg">
+      {/* Project Image */}
+      <div className="relative h-48 overflow-hidden">
         <img 
-          src={image} 
+          src={image}
           alt={title} 
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover"
         />
+        
+        {/* Category Badge */}
+        <div className="absolute top-3 right-3">
+          <Badge variant="secondary" className={`${getCategoryColor()} text-white`}>
+            {category.replace('الفئة: ', '')}
+          </Badge>
+        </div>
+        
+        {/* Status Badge */}
         {completed ? (
-          <div className="absolute top-3 left-3 bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+          <Badge variant="secondary" className="absolute top-3 left-3 bg-green-500 text-white">
             مكتمل
-          </div>
+          </Badge>
         ) : (
-          <div className="absolute top-3 left-3 bg-blue-500 text-white text-sm px-3 py-1 rounded-full">
-            جديد
-          </div>
+          <Badge variant="secondary" className="absolute top-3 left-3 bg-blue-500 text-white">
+            قيد التنفيذ
+          </Badge>
         )}
-        {title.includes('أبو عوف') && (
-          <div className="absolute top-3 right-3 bg-white text-primary text-sm px-2 py-1 rounded-full flex items-center gap-1">
-            <Store size={14} />
-            <span className="text-xs">متجر تجزئة</span>
-          </div>
-        )}
-        
-        {isHovered && (
-          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center transition-opacity">
-            <div className="space-x-2 rtl:space-x-reverse">
-              <Button 
-                variant="default" 
-                size="sm"
-                className="bg-white text-primary hover:bg-gray-100"
-                onClick={() => window.location.href = `/projects/${id}`}
-              >
-                <Eye size={16} className="mr-1" /> عرض التفاصيل
+      </div>
+
+      <CardContent className="p-5">
+        <div className="flex justify-between mb-3">
+          <h3 className="font-bold text-lg text-gray-900 truncate">{title}</h3>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical size={16} />
+                <span className="sr-only">القائمة</span>
               </Button>
-            </div>
-          </div>
-        )}
-      </div>
-      
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-xl text-primary">{location}</h3>
-          <span className="text-gray-600 text-sm">{title}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white">
+              <DropdownMenuItem asChild>
+                <Link to={`/projects/${id}`} className="flex items-center cursor-pointer">
+                  <Eye size={16} className="ml-2" />
+                  <span>عرض التفاصيل</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/projects/edit/${id}`} className="flex items-center cursor-pointer">
+                  <Pencil size={16} className="ml-2" />
+                  <span>تعديل</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/projects/${id}/files`} className="flex items-center cursor-pointer">
+                  <FileText size={16} className="ml-2" />
+                  <span>الملفات</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/projects/${id}/gallery`} className="flex items-center cursor-pointer">
+                  <Image size={16} className="ml-2" />
+                  <span>معرض الصور</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-red-500 focus:text-red-500"
+                onClick={() => onDelete(id)}
+              >
+                <Trash size={16} className="ml-2" />
+                <span>حذف</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         
-        <p className="text-sm text-gray-600 mb-2">{category}</p>
-        <p className="text-sm text-gray-800 mb-4 line-clamp-2">{description}</p>
+        <p className="text-sm text-gray-500 mb-3">{location}</p>
         
-        {progress > 0 && (
-          <div className="mt-4 mb-2">
-            <div className="flex justify-between text-sm mb-1">
-              <div className="flex items-center">
-                {getStatusIcon()}
-                <span className="mr-1 rtl:ml-1">نسبة الإنجاز</span>
-              </div>
-              <span>{progress}%</span>
-            </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div 
-                className={`h-full ${getProgressColorClass()}`}
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
-          </div>
-        )}
+        <p className="text-sm text-gray-700 mb-5 line-clamp-2">
+          {description}
+        </p>
         
-        <div className="flex justify-between items-center mt-4">
-          <div className="space-x-2 rtl:space-x-reverse flex">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex items-center"
-                >
-                  <Eye size={16} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white">
-                <DropdownMenuItem>
-                  <Link to={`/projects/${id}`} className="w-full flex">عرض التفاصيل</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link to={`/projects/${id}/edit`} className="w-full flex">تحرير المشروع</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>تحديث الحالة</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="flex items-center"
-              onClick={() => window.location.href = `/projects/${id}/edit`}
-            >
-              <Pencil size={16} />
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => onDelete(id)}
-              className="flex items-center"
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div>
+        <div className="mb-1 flex justify-between">
+          <span className="text-xs text-gray-500">نسبة الإنجاز</span>
+          <span className="text-xs font-medium">{progress}%</span>
         </div>
-      </div>
-    </div>
+        
+        <Progress value={progress} className="h-2" />
+        
+        <div className="mt-5 flex justify-between">
+          <Link to={`/projects/${id}`}>
+            <Button variant="outline" size="sm">
+              التفاصيل
+              <ExternalLink size={14} className="mr-1" />
+            </Button>
+          </Link>
+          
+          <span className="text-xs text-gray-500 flex items-center">
+            {completed ? 'تم الإنتهاء' : 'قيد التنفيذ'}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
