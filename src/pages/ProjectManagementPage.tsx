@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -18,7 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 // Define a consistent project type to avoid mismatches
 interface Project {
-  id: string | number;
+  id: string;
   title: string;
   location: string;
   category: string;
@@ -141,14 +142,15 @@ const ProjectManagementPage = () => {
         if (data && data.length > 0) {
           // Transform data to match our project format
           const formattedProjects: Project[] = data.map(project => ({
-            id: project.id,
+            id: project.id.toString(),
             title: project.title,
             location: project.location || '',
             category: project.category ? `الفئة: ${getCategoryName(project.category)}` : '',
             description: project.description || '',
             progress: project.progress || 0,
             completed: project.completed || false,
-            image: project.image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+            image: project.image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+            model_url: project.model_url
           }));
           
           setProjects(formattedProjects);
@@ -184,12 +186,12 @@ const ProjectManagementPage = () => {
   };
 
   // Handler functions
-  const handleDeleteProject = async (id: string | number) => {
+  const handleDeleteProject = async (id: string) => {
     try {
       const { error } = await supabase
         .from('projects')
         .delete()
-        .eq('id', id.toString());
+        .eq('id', id);
 
       if (error) {
         throw error;
@@ -206,7 +208,7 @@ const ProjectManagementPage = () => {
       console.error('Error deleting project:', error);
       toast({
         title: "حدث خطأ أثناء حذف المشروع",
-        description: "تعذر حذف ال��شروع، يرجى المحاولة مرة أخرى",
+        description: "تعذر حذف المشروع، يرجى المحاولة مرة أخرى",
         variant: "destructive",
       });
     }
@@ -318,14 +320,15 @@ const ProjectManagementPage = () => {
 
       // Format the newly created project
       const newProject: Project = {
-        id: data[0].id,
+        id: data[0].id.toString(),
         title: data[0].title,
         location: data[0].location || '',
         category: data[0].category ? `الفئة: ${getCategoryName(data[0].category)}` : '',
         description: data[0].description || '',
         progress: data[0].progress || 0,
         completed: data[0].completed || false,
-        image: data[0].image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'
+        image: data[0].image_url || 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+        model_url: data[0].model_url
       };
       
       // Upload project files if any
@@ -502,7 +505,14 @@ const ProjectManagementPage = () => {
             {filteredProjects.map(project => (
               <ProjectCard
                 key={project.id}
-                {...project}
+                id={project.id}
+                title={project.title}
+                location={project.location}
+                category={project.category}
+                description={project.description}
+                progress={project.progress}
+                completed={project.completed}
+                image={project.image}
                 onDelete={handleDeleteProject}
               />
             ))}
