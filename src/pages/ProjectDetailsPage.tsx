@@ -7,7 +7,7 @@ import ProjectTechnicalDetails from '@/components/project/ProjectTechnicalDetail
 import ProjectImageSlider from '@/components/project/ProjectImageSlider';
 import Project3DViewer from '@/components/project/Project3DViewer';
 import ProjectTechnologies from '@/components/project/ProjectTechnologies';
-import { getProjectById } from '@/services/projectService';
+import { fetchProjectById‎ } from '@/services/projectService';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from 'lucide-react';
 import EmptyProjectPlaceholder from '@/components/project/EmptyProjectPlaceholder';
@@ -25,7 +25,7 @@ const ProjectDetailsPage = () => {
 
   const fetchProject = async (projectId: string) => {
     try {
-      const projectData = await getProjectById(projectId);
+      const projectData = await fetchProjectById‎(projectId);
       setProject(projectData);
     } catch (error) {
       console.error('Error fetching project:', error);
